@@ -1,6 +1,6 @@
 # Why & When
 
-![Build Workflow](https://github.com/mirkosertic/flight-recorder-starter/workflows/Build%20Workflow/badge.svg)
+![Build Workflow](https://github.com/mirkosertic/flight-recorder-starter/workflows/Build%20Workflow/badge.svg) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/de.mirkosertic/flight-recorder-starter/badge.svg?style=plastic)](https://maven-badges.herokuapp.com/maven-central/de.mirkosertic/flight-recorder-starter)
 
 This is a Spring Boot 2 Starting exposing the Java Flight Recorder as a Spring Boot Actuator Endpoint.
 
@@ -13,6 +13,17 @@ starter into play!
 This starter adds a new Spring Boot Actuator endpoint for Java Flight Recorder remote control. This 
 RESTful endpoint allows starting and stopping Flight Recording and downloading the .jfr files
 for further analysis.
+
+Just add the following dependency to your Spring Boot 2 project:
+
+```
+<dependency>
+  <groupId>de.mirkosertic</groupId>
+  <artifactId>flight-recorder-starter</artifactId>
+  <version>1.0.1</version>
+</dependency>
+```
+
 
 ## Starting Flight Recording
 
