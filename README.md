@@ -24,6 +24,7 @@ Just add the following dependency to your Spring Boot 2 project:
 </dependency>
 ```
 
+Please note: the minimum Java/JVM runtime version is 11!
 
 ## Starting Flight Recording
 
