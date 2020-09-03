@@ -1,0 +1,23 @@
+name: Build Workflow
+on:
+  push:
+    branches:
+      - master
+jobs:
+  build:
+    runs-on: 'ubuntu-latest'
+    strategy:
+      matrix:
+        java: [11,12,13,14]
+    steps:
+      - uses: actions/checkout@v1
+      - uses: joschi/setup-jdk@v1
+        with:
+          java-version: ${{ matrix.java }}
+      - uses: actions/cache@v1
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - run: ./mvnw verify

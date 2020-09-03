@@ -15,13 +15,19 @@
  */
 package de.mirkosertic.flightrecorderstarter;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-@SpringBootApplication
-public class FlightRecorderStarterApplication {
+@Configuration
+public class FlightRecorderConfiguration {
 
-	public static void main(String[] args) {
-		SpringApplication.run(FlightRecorderStarterApplication.class, args);
-	}
+    @Bean
+    public FlightRecorder flightRecorder() {
+        return new FlightRecorder();
+    }
+
+    @Bean
+    public FlightRecorderEndpoint flightRecorderEndpoint(final FlightRecorder flightRecorder) {
+        return new FlightRecorderEndpoint(flightRecorder);
+    }
 }
