@@ -9,7 +9,7 @@
 	</parent>
 	<groupId>de.mirkosertic</groupId>
 	<artifactId>flight-recorder-starter</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1-SNAPSHOT</version>
 	<name>flight-recorder-starter</name>
 	<description>Spring Boot 2 starter for Java Flight Recorder Actuator Endpoint</description>
 	<packaging>jar</packaging>
@@ -41,7 +41,7 @@
 		<url>https://github.com/mirkosertic/flight-recorder-starter</url>
 		<connection>scm:git:https://github.com/mirkosertic/flight-recorder-starter.git</connection>
 		<developerConnection>scm:git:https://github.com/mirkosertic/flight-recorder-starter.git</developerConnection>
-		<tag>1.0.0</tag>
+		<tag>2020-09-03</tag>
 	</scm>
 
 	<properties>
