@@ -11,7 +11,7 @@ starter into play!
 # How
 
 This starter adds a new Spring Boot Actuator endpoint for Java Flight Recorder remote control. This 
-RESTful endpoint allows starting and stopping Flight Recording and downloading the .jfr files
+RESTful endpoint allows starting and stopping Flight Recording and downloading the `.jfr` files
 for further analysis.
 
 Just add the following dependency to your Spring Boot 2 project:
@@ -57,7 +57,9 @@ The following `cURL` command stops the Flight Recording with ID `1` and download
 curl --output recording.jfr http://localhost:8080/actuator/flightrecorder/2
 ```
 
-## Stopping Flight Recording and discarding results
+The downloaded `.jfr` file can be imported into Java Mission Control (JMC) for further analysis.
+
+## Stopping Flight Recording and discarding data
 
 The following `cURL` command stops the Flight Recording with ID `1` and discards all data:
 
