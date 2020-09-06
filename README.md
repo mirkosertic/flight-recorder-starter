@@ -54,7 +54,7 @@ recorded data.
 The following `cURL` command stops the Flight Recording with ID `1` and downloads the `.jfr` file:
 
 ```
-curl --output recording.jfr http://localhost:8080/actuator/flightrecorder/2
+curl --output recording.jfr http://localhost:8080/actuator/flightrecorder/1
 ```
 
 The downloaded `.jfr` file can be imported into Java Mission Control (JMC) for further analysis.
@@ -64,5 +64,5 @@ The downloaded `.jfr` file can be imported into Java Mission Control (JMC) for f
 The following `cURL` command stops the Flight Recording with ID `1` and discards all data:
 
 ```
-curl -X DELETE http://localhost:8080/actuator/flightrecorder/2
+curl -X DELETE http://localhost:8080/actuator/flightrecorder/1
 ```
