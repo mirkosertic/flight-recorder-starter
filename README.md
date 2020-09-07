@@ -31,9 +31,7 @@ Please note: the minimum Java/JVM runtime version is 11!
 The following `cURL` command starts a new Flight Recording and returns the created Flight Recording ID:
 
 ```
-curl  -i -X PUT -H "Content-Type: application/json" \ 
-    -d '{"duration": "60","timeUnit":"SECONDS"}' \
-    http://localhost:8080/actuator/flightrecorder
+curl  -i -X PUT -H "Content-Type: application/json" -d '{"duration": "60","timeUnit":"SECONDS"}' http://localhost:8080/actuator/flightrecorder
 
 HTTP/1.1 200 
 Content-Type: text/plain
@@ -58,6 +56,21 @@ curl --output recording.jfr http://localhost:8080/actuator/flightrecorder/1
 ```
 
 The downloaded `.jfr` file can be imported into Java Mission Control (JMC) for further analysis.
+
+## Visiting the interactive Flamegraph
+
+This starter can generate an interactive Flamegraph from a Flight Recorder recording.
+You can gain a quick overview by visiting the following URL in your browser to see 
+the graph for a recording with ID `1`:
+
+```
+http://localhost:8080/actuator/flightrecorder/1/flamegraph.html
+```
+
+and you'll get:
+
+![Flamegraph](docs/flamegraph.png)
+
 
 ## Stopping Flight Recording and discarding data
 

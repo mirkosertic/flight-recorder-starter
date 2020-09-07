@@ -15,6 +15,7 @@
  */
 package de.mirkosertic.flightrecorderstarter;
 
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -27,7 +28,7 @@ public class FlightRecorderConfiguration {
     }
 
     @Bean
-    public FlightRecorderEndpoint flightRecorderEndpoint(final FlightRecorder flightRecorder) {
-        return new FlightRecorderEndpoint(flightRecorder);
+    public FlightRecorderEndpoint flightRecorderEndpoint(final ApplicationContext applicationContext, final FlightRecorder flightRecorder) {
+        return new FlightRecorderEndpoint(applicationContext, flightRecorder);
     }
 }

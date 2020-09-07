@@ -27,6 +27,6 @@ class FlameGraphTest {
     @Test
     void testParsing() throws URISyntaxException, IOException {
         final URL url = getClass().getResource("/recording.jfr");
-        FlameGraph g = FlameGraph.from(new File(url.toURI()));
+        final FlameGraph g = FlameGraph.from(new File(url.toURI()));
     }
 }
