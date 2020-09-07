@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<head>
+    <link rel="stylesheet" type="text/css" href="d3-flamegraph.css">
+    <title>Interactive Flight Recording Flame Graph</title>
+</head>
+<body>
+    <h1>Interactive Flight Recording Flame Graph</h1>
+    <div id="chart"></div>
+    <div id="details"></div>
+    <script type="text/javascript" src="d3.v4.min.js"></script>
+    <script type="text/javascript" src="d3-flamegraph.min.js"></script>
+    <script type="text/javascript">
+        var chart = flamegraph()
+            .width(window.innerWidth - 50);
+
+        d3.json("data.json", function(error, data) {
+            if (error) return console.warn(error);
+            d3.select("#chart")
+                .datum(data)
+                .call(chart);
+        });
+        chart.setDetailsElement(document.getElementById("details"));
+    </script>
+    <style>
+        #details {
+            border: 1px solid silver;
+            padding: 5px;
+            height: 1rem;
+            margin-top: 0.5rem;
+        }
+    </style>
+</body>

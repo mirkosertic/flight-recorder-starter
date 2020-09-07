@@ -15,20 +15,18 @@
  */
 package de.mirkosertic.flightrecorderstarter;
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.junit.jupiter.api.Test;
 
-@Configuration
-public class FlightRecorderConfiguration {
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 
-    @Bean
-    public FlightRecorder flightRecorder() {
-        return new FlightRecorder();
-    }
+class FlameGraphTest {
 
-    @Bean
-    public FlightRecorderEndpoint flightRecorderEndpoint(final ApplicationContext applicationContext, final FlightRecorder flightRecorder) {
-        return new FlightRecorderEndpoint(applicationContext, flightRecorder);
+    @Test
+    void testParsing() throws URISyntaxException, IOException {
+        final URL url = getClass().getResource("/recording.jfr");
+        final FlameGraph g = FlameGraph.from(new File(url.toURI()));
     }
 }

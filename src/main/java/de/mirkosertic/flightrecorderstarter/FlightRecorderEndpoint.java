@@ -15,7 +15,11 @@
  */
 package de.mirkosertic.flightrecorderstarter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.actuate.endpoint.web.annotation.RestControllerEndpoint;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -30,6 +34,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.io.File;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -37,6 +42,8 @@ import java.util.logging.Logger;
 public class FlightRecorderEndpoint {
 
     private final static Logger LOGGER = Logger.getLogger(FlightRecorder.class.getCanonicalName());
+    private final static MediaType TEXT_CSS = new MediaType("text","css");
+    private final static MediaType TEXT_JAVASCRIPT = new MediaType("text","javascript");
 
     public static class StartRecordingCommand {
         private long duration;
@@ -59,10 +66,19 @@ public class FlightRecorderEndpoint {
         }
     }
 
+    private final ApplicationContext applicationContext;
     private final FlightRecorder flightRecorder;
 
-    public FlightRecorderEndpoint(FlightRecorder flightRecorder) {
+    public FlightRecorderEndpoint(
+            final ApplicationContext applicationContext,
+            final FlightRecorder flightRecorder) {
+        this.applicationContext = applicationContext;
         this.flightRecorder = flightRecorder;
+    }
+
+    private String findBootClass() {
+        Map<String, Object> annotatedBeans = applicationContext.getBeansWithAnnotation(SpringBootApplication.class);
+        return annotatedBeans.isEmpty() ? null : annotatedBeans.values().toArray()[0].getClass().getName();
     }
 
     @PutMapping("/")
@@ -86,6 +102,167 @@ public class FlightRecorderEndpoint {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @GetMapping("/{recordingId}/flamegraph.html")
+    public @ResponseBody ResponseEntity downloadRecordingFlameGraph(@PathVariable final long recordingId) {
+
+        final HttpHeaders headers = new HttpHeaders();
+        headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
+        headers.add("Pragma", "no-cache");
+        headers.add("Expires", "0");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentType(MediaType.TEXT_HTML)
+                .body(new ClassPathResource("/flamegraph.html"));
+    }
+
+    @GetMapping("/{recordingId}/rawflamegraph.html")
+    public @ResponseBody ResponseEntity downloadRecordingRawFlameGraph(@PathVariable final long recordingId) {
+
+        final HttpHeaders headers = new HttpHeaders();
+        headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
+        headers.add("Pragma", "no-cache");
+        headers.add("Expires", "0");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentType(MediaType.TEXT_HTML)
+                .body(new ClassPathResource("/rawflamegraph.html"));
+    }
+
+    @GetMapping("/{recordingId}/data.json")
+    public @ResponseBody ResponseEntity downloadRecordingJson(@PathVariable final long recordingId) {
+
+        LOGGER.log(Level.INFO, "Closing recording with ID {0} and downloading file", recordingId);
+        final File file = flightRecorder.stopRecording(recordingId);
+
+        final HttpHeaders headers = new HttpHeaders();
+        headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
+        headers.add("Pragma", "no-cache");
+        headers.add("Expires", "0");
+
+        final ObjectMapper mapper = new ObjectMapper();
+        try {
+
+            final String bootClass = findBootClass();
+            final FlameGraph graph;
+            if (bootClass == null) {
+                graph = FlameGraph.from(file);
+            } else {
+                final int p = bootClass.lastIndexOf(".");
+                final String basePackage = bootClass.substring(0, p + 1);
+                graph = FlameGraph.from(file, new FlameGraph.PackageNamePrefixFrameFilter(basePackage));
+            }
+            final String jsonData = mapper.writeValueAsString(graph.getRoot());
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(jsonData);
+
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Could not create json data for flight recording", e);
+            return ResponseEntity.badRequest()
+                .body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/{recordingId}/rawdata.json")
+    public @ResponseBody ResponseEntity downloadRecordingRawJson(@PathVariable final long recordingId) {
+
+        LOGGER.log(Level.INFO, "Closing recording with ID {0} and downloading file", recordingId);
+        final File file = flightRecorder.stopRecording(recordingId);
+
+        final HttpHeaders headers = new HttpHeaders();
+        headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
+        headers.add("Pragma", "no-cache");
+        headers.add("Expires", "0");
+
+        final ObjectMapper mapper = new ObjectMapper();
+        try {
+            final FlameGraph graph = FlameGraph.from(file);
+            final String jsonData = mapper.writeValueAsString(graph.getRoot());
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(jsonData);
+
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Could not create json data for flight recording", e);
+            return ResponseEntity.badRequest()
+                    .body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/{recordingId}/d3.v4.min.js")
+    public @ResponseBody ResponseEntity downloadRecording2(@PathVariable final long recordingId) {
+
+        final HttpHeaders headers = new HttpHeaders();
+        headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
+        headers.add("Pragma", "no-cache");
+        headers.add("Expires", "0");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentType(TEXT_JAVASCRIPT)
+                .body(new ClassPathResource("/d3.v4.min.js"));
+    }
+
+    @GetMapping("/{recordingId}/d3-flamegraph.min.js")
+    public @ResponseBody ResponseEntity downloadRecording3(@PathVariable final long recordingId) {
+
+        final HttpHeaders headers = new HttpHeaders();
+        headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
+        headers.add("Pragma", "no-cache");
+        headers.add("Expires", "0");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentType(TEXT_JAVASCRIPT)
+                .body(new ClassPathResource("/d3-flamegraph.min.js"));
+    }
+
+    @GetMapping("/{recordingId}/d3-flamegraph-colorMapper.min.js")
+    public @ResponseBody ResponseEntity downloadRecording4(@PathVariable final long recordingId) {
+
+        final HttpHeaders headers = new HttpHeaders();
+        headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
+        headers.add("Pragma", "no-cache");
+        headers.add("Expires", "0");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentType(TEXT_JAVASCRIPT)
+                .body(new ClassPathResource("/d3-flamegraph-colorMapper.min.js"));
+    }
+
+    @GetMapping("/{recordingId}/d3-flamegraph-tooltip.min.js")
+    public @ResponseBody ResponseEntity downloadRecording5(@PathVariable final long recordingId) {
+
+        final HttpHeaders headers = new HttpHeaders();
+        headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
+        headers.add("Pragma", "no-cache");
+        headers.add("Expires", "0");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentType(TEXT_JAVASCRIPT)
+                .body(new ClassPathResource("/d3-flamegraph-tooltip.min.js"));
+    }
+
+    @GetMapping("/{recordingId}/d3-flamegraph.css")
+    public @ResponseBody ResponseEntity downloadRecording6(@PathVariable final long recordingId) {
+
+        final HttpHeaders headers = new HttpHeaders();
+        headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
+        headers.add("Pragma", "no-cache");
+        headers.add("Expires", "0");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentType(TEXT_CSS)
+                .body(new ClassPathResource("/d3-flamegraph.css"));
     }
 
     @GetMapping("/{recordingId}")

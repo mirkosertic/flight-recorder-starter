@@ -2,7 +2,7 @@
 
 ![Build Workflow](https://github.com/mirkosertic/flight-recorder-starter/workflows/Build%20Workflow/badge.svg) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/de.mirkosertic/flight-recorder-starter/badge.svg?style=plastic)](https://maven-badges.herokuapp.com/maven-central/de.mirkosertic/flight-recorder-starter)
 
-This is a Spring Boot 2 Starting exposing the JDK Flight Recorder as a Spring Boot Actuator Endpoint.
+This is a Spring Boot 2 Starter exposing the Java Flight Recorder as a Spring Boot Actuator Endpoint.
 
 Normally the JDK Flight Recorder is available locally or by JMX remote. Depending on your deployment 
 scenario shell or JMX access might not be available for the application server. Here comes this handy
@@ -31,9 +31,7 @@ Please note: the minimum Java/JVM runtime version is 11!
 The following `cURL` command starts a new Flight Recording and returns the created Flight Recording ID:
 
 ```
-curl  -i -X PUT -H "Content-Type: application/json" \ 
-    -d '{"duration": "60","timeUnit":"SECONDS"}' \
-    http://localhost:8080/actuator/flightrecorder
+curl  -i -X PUT -H "Content-Type: application/json" -d '{"duration": "60","timeUnit":"SECONDS"}' http://localhost:8080/actuator/flightrecorder
 
 HTTP/1.1 200 
 Content-Type: text/plain
@@ -58,6 +56,31 @@ curl --output recording.jfr http://localhost:8080/actuator/flightrecorder/1
 ```
 
 The downloaded `.jfr` file can be imported into Java Mission Control (JMC) for further analysis.
+
+## Visiting the interactive Flamegraph
+
+This starter can generate an interactive Flamegraph from a Flight Recorder recording.
+You can gain a quick overview by visiting the following URL in your browser to see 
+the graph for a recording with ID `1`:
+
+```
+http://localhost:8080/actuator/flightrecorder/1/flamegraph.html
+```
+
+and you'll get:
+
+![Flamegraph](docs/flamegraph.png)
+
+The starter automatically tries to visualize only classes belonging to the running
+Spring Boot application. It filters the stacktrace samples by classes that are in
+the package or sub-package of the running application instance annotated with a
+`@SpringBootApplication` annotation.
+
+However, you can always get the unfiltered Flamegraph by visiting:
+
+```
+http://localhost:8080/actuator/flightrecorder/1/rawflamegraph.html
+```
 
 ## Stopping Flight Recording and discarding data
 
