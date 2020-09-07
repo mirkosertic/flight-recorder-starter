@@ -4,13 +4,13 @@
 
 This is a Spring Boot 2 Starter exposing the Java Flight Recorder as a Spring Boot Actuator Endpoint.
 
-Normally the Java Flight Recorder is available locally or by JMX remote. Depending on your deployment 
+Normally the JDK Flight Recorder is available locally or by JMX remote. Depending on your deployment 
 scenario shell or JMX access might not be available for the application server. Here comes this handy
 starter into play!
 
 # How
 
-This starter adds a new Spring Boot Actuator endpoint for Java Flight Recorder remote control. This 
+This starter adds a new Spring Boot Actuator endpoint for JDK Flight Recorder remote control. This 
 RESTful endpoint allows starting and stopping Flight Recording and downloading the `.jfr` files
 for further analysis.
 
