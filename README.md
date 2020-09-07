@@ -71,6 +71,16 @@ and you'll get:
 
 ![Flamegraph](docs/flamegraph.png)
 
+The starter automatically tries to visualize only classes belonging to the running
+Spring Boot application. It filters the stacktrace samples by classes that are in
+the package or sub-package of the running application instance annotated with a
+`@SpringBootApplication` annotation.
+
+However, you can always get the unfiltered Flamegraph by visiting:
+
+```
+http://localhost:8080/actuator/flightrecorder/1/rawflamegraph.html
+```
 
 ## Stopping Flight Recording and discarding data
 
