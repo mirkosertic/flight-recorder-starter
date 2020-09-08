@@ -55,7 +55,7 @@ The following `cURL` command stops the Flight Recording with ID `1` and download
 curl --output recording.jfr http://localhost:8080/actuator/flightrecorder/1
 ```
 
-The downloaded `.jfr` file can be imported into Java Mission Control (JMC) for further analysis.
+The downloaded `.jfr` file can be imported into JDK Mission Control (JMC) for further analysis.
 
 ## Visiting the interactive Flamegraph
 
