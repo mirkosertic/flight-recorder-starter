@@ -17,6 +17,7 @@ package de.mirkosertic.flightrecorderstarter;
 
 import jdk.jfr.Configuration;
 import jdk.jfr.Recording;
+import jdk.jfr.RecordingState;
 
 import java.io.File;
 import java.io.IOException;
@@ -65,7 +66,9 @@ public final class FlightRecorder {
     public File stopRecording(final long recordingId) {
         final Recording recording = recordings.get(recordingId);
         if (recording != null) {
-            recording.stop();
+            if (recording.getState() == RecordingState.RUNNING) {
+                recording.stop();
+            }
             return recording.getDestination().toFile();
         } else {
             LOGGER.log(Level.WARNING, "No recording with id {0} found", recordingId);
