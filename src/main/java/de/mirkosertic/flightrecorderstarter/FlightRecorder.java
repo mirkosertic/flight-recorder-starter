@@ -138,4 +138,14 @@ public final class FlightRecorder {
             deletedRecordings.forEach(recordings::remove);
         }
     }
+
+    public boolean isRecordingStopped(final long recordingId) {
+        synchronized (recordings) {
+            final Recording recording = recordings.get(recordingId);
+            if (recording == null) {
+                return true;
+            }
+            return recording.getState() == RecordingState.CLOSED || recording.getState() == RecordingState.STOPPED;
+        }
+    }
 }

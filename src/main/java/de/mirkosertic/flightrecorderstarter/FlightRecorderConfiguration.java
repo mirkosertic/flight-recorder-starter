@@ -15,6 +15,8 @@
  */
 package de.mirkosertic.flightrecorderstarter;
 
+import io.micrometer.core.instrument.MeterRegistry;
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,5 +32,18 @@ public class FlightRecorderConfiguration {
     @Bean
     public FlightRecorderEndpoint flightRecorderEndpoint(final ApplicationContext applicationContext, final FlightRecorder flightRecorder) {
         return new FlightRecorderEndpoint(applicationContext, flightRecorder);
+    }
+
+    @Bean
+    public MicrometerAdapter micrometerAdapter(final MeterRegistry meterRegistry) {
+        return new MicrometerAdapter(meterRegistry);
+    }
+
+    @Bean
+    public TriggerChecker triggerChecker(final BeanFactory beanFactory,
+                                         final FlightRecorderDynamicConfiguration dynamicConfiguration,
+                                         final FlightRecorder flightRecorder,
+                                         final MicrometerAdapter micrometerAdapter) {
+        return new TriggerChecker(beanFactory, dynamicConfiguration, flightRecorder, micrometerAdapter);
     }
 }

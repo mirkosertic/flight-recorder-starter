@@ -1,6 +1,7 @@
 flightrecorder:
   enabled: true
   recordingCleanupInterval: 5000
+  triggerCheckInterval: 10000
   trigger:
     - expression: meter('jvm.memory.used').tag('area','nonheap').tag('id','Metaspace').value('value') > 100
       startRecordingCommand:
