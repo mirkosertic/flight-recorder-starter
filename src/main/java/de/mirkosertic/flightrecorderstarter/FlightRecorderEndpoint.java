@@ -33,7 +33,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.File;
 import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -44,27 +43,6 @@ public class FlightRecorderEndpoint {
     private final static Logger LOGGER = Logger.getLogger(FlightRecorder.class.getCanonicalName());
     private final static MediaType TEXT_CSS = new MediaType("text","css");
     private final static MediaType TEXT_JAVASCRIPT = new MediaType("text","javascript");
-
-    public static class StartRecordingCommand {
-        private long duration;
-        private String timeUnit;
-
-        public long getDuration() {
-            return duration;
-        }
-
-        public void setDuration(long duration) {
-            this.duration = duration;
-        }
-
-        public String getTimeUnit() {
-            return timeUnit;
-        }
-
-        public void setTimeUnit(String timeUnit) {
-            this.timeUnit = timeUnit;
-        }
-    }
 
     private final ApplicationContext applicationContext;
     private final FlightRecorder flightRecorder;
@@ -77,18 +55,18 @@ public class FlightRecorderEndpoint {
     }
 
     private String findBootClass() {
-        Map<String, Object> annotatedBeans = applicationContext.getBeansWithAnnotation(SpringBootApplication.class);
+        final Map<String, Object> annotatedBeans = applicationContext.getBeansWithAnnotation(SpringBootApplication.class);
         return annotatedBeans.isEmpty() ? null : annotatedBeans.values().toArray()[0].getClass().getName();
     }
 
     @PutMapping("/")
     public @ResponseBody ResponseEntity startRecording(@RequestBody final StartRecordingCommand command) {
         try {
-            LOGGER.log(Level.INFO, "Trying to start recording for {0} {1}", new Object[] {command.duration, command.timeUnit});
-            final long recordingId = flightRecorder.startRecordingFor(Duration.of(command.duration, ChronoUnit.valueOf(command.timeUnit)));
+            LOGGER.log(Level.INFO, "Trying to start recording for {0} {1}", new Object[] {command.getDuration(), command.getTimeUnit()});
+            final long recordingId = flightRecorder.startRecordingFor(Duration.of(command.getDuration(), command.getTimeUnit()));
             LOGGER.log(Level.INFO, "Created recording with ID {0}", recordingId);
             return ResponseEntity.ok().contentType(MediaType.TEXT_PLAIN).body(Long.toString(recordingId));
-        } catch (Exception e) {
+        } catch (final Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
@@ -99,7 +77,7 @@ public class FlightRecorderEndpoint {
             LOGGER.log(Level.INFO, "Closing recording with ID {0}", recordingId);
             flightRecorder.stopRecording(recordingId);
             return ResponseEntity.ok().build();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
@@ -161,7 +139,7 @@ public class FlightRecorderEndpoint {
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(jsonData);
 
-        } catch (Exception e) {
+        } catch (final Exception e) {
             LOGGER.log(Level.WARNING, "Could not create json data for flight recording", e);
             return ResponseEntity.badRequest()
                 .body(e.getMessage());
@@ -188,7 +166,7 @@ public class FlightRecorderEndpoint {
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(jsonData);
 
-        } catch (Exception e) {
+        } catch (final Exception e) {
             LOGGER.log(Level.WARNING, "Could not create json data for flight recording", e);
             return ResponseEntity.badRequest()
                     .body(e.getMessage());

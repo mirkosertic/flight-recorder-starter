@@ -20,9 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
@@ -34,23 +32,22 @@ class MicrometerAdapterTest {
     @Test
     void queryNotExistingMetric() {
         final MicrometerAdapter adapter = new MicrometerAdapter(meterRegistry);
-        final Optional<Double> result = adapter.meter("abc.jvm.memory.used")
+        final double result = adapter.meter("abc.jvm.memory.used")
                 .tag("area", "abc.nonheap")
                 .tag("id","abc.Metaspace")
                 .value("value");
 
-        assertFalse(result.isPresent());
+        assertEquals(0d, result);
     }
 
     @Test
     void queryMemoryUsed() {
         final MicrometerAdapter adapter = new MicrometerAdapter(meterRegistry);
-        final Optional<Double> result = adapter.meter("jvm.memory.used")
+        final double result = adapter.meter("jvm.memory.used")
                                                 .tag("area", "nonheap")
                                                 .tag("id","Metaspace")
                                                 .value("value");
 
-        assertTrue(result.isPresent());
-        assertTrue(result.get() > 0);
+        assertTrue(result > 0);
     }
 }

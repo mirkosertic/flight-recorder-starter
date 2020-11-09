@@ -20,9 +20,12 @@ import io.micrometer.core.instrument.Meter;
 import io.micrometer.core.instrument.search.MeterNotFoundException;
 import io.micrometer.core.instrument.search.RequiredSearch;
 
-import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class MeterQuery {
+
+    private final static Logger LOGGER = Logger.getLogger(MeterQuery.class.getCanonicalName());
 
     private final RequiredSearch requiredSearch;
 
@@ -40,17 +43,19 @@ public class MeterQuery {
         return this;
     }
 
-    public Optional<Double> value(final String statisticsName) {
+    public double value(final String statisticsName) {
         try {
             final Meter meter = requiredSearch.meter();
             for (final Measurement m : meter.measure()) {
                 if (m.getStatistic().getTagValueRepresentation().equals(statisticsName)) {
-                    return Optional.of(m.getValue());
+                    return m.getValue();
                 }
             }
-            return Optional.empty();
+            LOGGER.log(Level.FINE, "No measurement with name {} found", statisticsName);
+            return 0d;
         } catch (final MeterNotFoundException e) {
-            return Optional.empty();
+            LOGGER.log(Level.FINE, "No meter found", e);
+            return 0d;
         }
     }
 }

@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-de.mirkosertic.flightrecorderstarter.FlightRecorderConfiguration
+de.mirkosertic.flightrecorderstarter.FlightRecorderConfiguration,de.mirkosertic.flightrecorderstarter.TriggerConfiguration
