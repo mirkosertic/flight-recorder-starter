@@ -23,8 +23,8 @@ import org.springframework.context.annotation.Configuration;
 public class FlightRecorderConfiguration {
 
     @Bean
-    public FlightRecorder flightRecorder() {
-        return new FlightRecorder();
+    public FlightRecorder flightRecorder(final FlightRecorderDynamicConfiguration configuration) {
+        return new FlightRecorder(configuration);
     }
 
     @Bean

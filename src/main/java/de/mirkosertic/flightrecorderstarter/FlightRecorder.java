@@ -18,13 +18,17 @@ package de.mirkosertic.flightrecorderstarter;
 import jdk.jfr.Configuration;
 import jdk.jfr.Recording;
 import jdk.jfr.RecordingState;
+import org.springframework.scheduling.annotation.Scheduled;
 
 import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -33,9 +37,11 @@ public final class FlightRecorder {
     private final static Logger LOGGER = Logger.getLogger(FlightRecorder.class.getCanonicalName());
 
     private final Map<Long, Recording> recordings;
+    private final FlightRecorderDynamicConfiguration configuration;
 
-    public FlightRecorder() {
-        recordings = new HashMap<>();
+    public FlightRecorder(final FlightRecorderDynamicConfiguration configuration) {
+        this.recordings = new HashMap<>();
+        this.configuration = configuration;
     }
 
     public long newRecording() {
@@ -50,53 +56,86 @@ public final class FlightRecorder {
         }
         final Recording recording = new Recording(settings);
         recording.setName("Spring Boot Starter Flight Recording");
-        recordings.put(recording.getId(), recording);
+        synchronized (recordings) {
+            recordings.put(recording.getId(), recording);
+        }
         return recording.getId();
     }
 
     public void startRecording(final long recordingId) {
-        final Recording recording = recordings.get(recordingId);
-        if (recording != null) {
-            recording.start();
-        } else {
-            LOGGER.log(Level.WARNING, "No recording with id {0} found", recordingId);
+        synchronized (recordings) {
+            final Recording recording = recordings.get(recordingId);
+            if (recording != null) {
+                recording.start();
+            } else {
+                LOGGER.log(Level.WARNING, "No recording with id {0} found", recordingId);
+            }
         }
     }
 
     public File stopRecording(final long recordingId) {
-        final Recording recording = recordings.get(recordingId);
-        if (recording != null) {
-            if (recording.getState() == RecordingState.RUNNING) {
-                recording.stop();
+        synchronized (recordings) {
+            final Recording recording = recordings.get(recordingId);
+            if (recording != null) {
+                if (recording.getState() == RecordingState.RUNNING) {
+                    recording.stop();
+                }
+                return recording.getDestination().toFile();
+            } else {
+                LOGGER.log(Level.WARNING, "No recording with id {0} found", recordingId);
+                return null;
             }
-            return recording.getDestination().toFile();
-        } else {
-            LOGGER.log(Level.WARNING, "No recording with id {0} found", recordingId);
-            return null;
         }
     }
 
     public void setRecordingOptions(final long recordingId, final Duration duration, final File filename) throws IOException {
-        final Recording recording = recordings.get(recordingId);
-        if (recording != null) {
-            recording.setDuration(duration);
-            recording.setDestination(filename.toPath());
-            recording.setToDisk(true);
-        } else {
-            LOGGER.log(Level.WARNING, "No recording with id {0} found", recordingId);
+        synchronized (recordings) {
+            final Recording recording = recordings.get(recordingId);
+            if (recording != null) {
+                recording.setDuration(duration);
+                recording.setDestination(filename.toPath());
+                recording.setToDisk(true);
+            } else {
+                LOGGER.log(Level.WARNING, "No recording with id {0} found", recordingId);
+            }
         }
     }
 
     public long startRecordingFor(final Duration duration) throws IOException {
-        final long recordingId = newRecording();
-        final File tempFile = File.createTempFile("recording",".jfr");
+        synchronized (recordings) {
+            final long recordingId = newRecording();
+            final File tempFile = File.createTempFile("recording", ".jfr");
 
-        LOGGER.log(Level.INFO, "Recording {0} to temp file {1}", new Object[] {recordingId, tempFile});
+            LOGGER.log(Level.INFO, "Recording {0} to temp file {1}", new Object[]{recordingId, tempFile});
 
-        tempFile.deleteOnExit();
-        setRecordingOptions(recordingId, duration, tempFile);
-        startRecording(recordingId);
+            tempFile.deleteOnExit();
+            setRecordingOptions(recordingId, duration, tempFile);
+            startRecording(recordingId);
 
-        return recordingId;
+            return recordingId;
+        }
+    }
+
+    @Scheduled(fixedDelayString = "${flightrecorder.recordingCleanupInterval:5000}")
+    public void cleanupOldRecordings() {
+        synchronized (recordings) {
+            final Instant deadline = Instant.now().minus(configuration.getOldRecordingsTTL(), configuration.getOldRecordingsTTLTimeUnit());
+            final Set<Long> deletedRecordings = new HashSet<>();
+            for (final Map.Entry<Long, Recording> entry : recordings.entrySet()) {
+                final Recording recording = entry.getValue();
+                if ((recording.getState() == RecordingState.STOPPED || recording.getState() == RecordingState.CLOSED) &&
+                        recording.getStartTime().isBefore(deadline)) {
+                    try {
+                        if (recording.getState() == RecordingState.STOPPED) {
+                            recording.close();
+                        }
+                    } catch (final Exception e) {
+                        LOGGER.log(Level.INFO, "Cannot close recording {0}", new Object[] {recording.getId()});
+                    }
+                    deletedRecordings.add(entry.getKey());
+                }
+            }
+            deletedRecordings.forEach(recordings::remove);
+        }
     }
 }
