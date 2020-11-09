@@ -15,7 +15,10 @@
  */
 package de.mirkosertic.flightrecorderstarter;
 
+import io.micrometer.core.instrument.MeterRegistry;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.SpelCompilerMode;
@@ -23,19 +26,31 @@ import org.springframework.expression.spel.SpelParserConfiguration;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+@SpringBootTest
 public class SPELTest {
+
+    @Autowired
+    MeterRegistry meterRegistry;
 
     @Test
     void testEvaluate() {
+
+        final MicrometerAdapter adapter = new MicrometerAdapter(meterRegistry);
         final SpelParserConfiguration config = new SpelParserConfiguration(SpelCompilerMode.IMMEDIATE, this.getClass().getClassLoader());
         final ExpressionParser parser = new SpelExpressionParser(config);
 
-        final StandardEvaluationContext context = new StandardEvaluationContext();
-        final Expression exp = parser.parseExpression("#root");
-        final Object value = exp.getValue(context, Boolean.TRUE);
+        final StandardEvaluationContext context = new StandardEvaluationContext(adapter);
 
-        assertEquals(Boolean.TRUE, value);
+        final Expression exp = parser.parseExpression("meter('jvm.memory.used').tag('area','nonheap').tag('id','Metaspace').value('value')");
+        final Optional<Double> value = exp.getValue(context, Optional.class);
+
+        assertNotNull(value);
+        assertTrue(value.isPresent());
+        assertTrue(value.get() > 0);
     }
 }
