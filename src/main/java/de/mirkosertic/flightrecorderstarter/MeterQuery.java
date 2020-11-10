@@ -43,7 +43,7 @@ public class MeterQuery {
         return this;
     }
 
-    public double value(final String statisticsName) {
+    public double measurement(final String statisticsName) {
         try {
             final Meter meter = requiredSearch.meter();
             for (final Measurement m : meter.measure()) {

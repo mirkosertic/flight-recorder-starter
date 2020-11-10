@@ -49,7 +49,7 @@ public class SPELTest {
         final StandardEvaluationContext context = new StandardEvaluationContext(adapter);
         context.setBeanResolver(new BeanFactoryResolver(beanFactory));
 
-        final Expression exp = parser.parseExpression("meter('jvm.memory.used').tag('area','nonheap').tag('id','Metaspace').value('value')");
+        final Expression exp = parser.parseExpression("meter('jvm.memory.used').tag('area','nonheap').tag('id','Metaspace').measurement('value')");
         final double value = exp.getValue(context, Double.class);
 
         assertTrue(value > 0);

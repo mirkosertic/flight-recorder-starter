@@ -1,9 +1,9 @@
 flightrecorder:
-  enabled: true
-  recordingCleanupInterval: 5000
-  triggerCheckInterval: 10000
+  enabled: true  # is this starter active?
+  recordingCleanupInterval: 5000 # try to cleanup old recordings every 5 seconds
+  triggerCheckInterval: 10000 # evaluate trigger expressions every 10 seconds
   trigger:
-    - expression: meter('jvm.memory.used').tag('area','nonheap').tag('id','Metaspace').value('value') > 100
+    - expression: meter('jvm.memory.used').tag('area','nonheap').tag('id','Metaspace').measurement('value') > 100
       startRecordingCommand:
         duration: 60
         timeUnit: SECONDS

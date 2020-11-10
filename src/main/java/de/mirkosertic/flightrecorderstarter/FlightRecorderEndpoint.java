@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.File;
 import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -59,11 +60,22 @@ public class FlightRecorderEndpoint {
         return annotatedBeans.isEmpty() ? null : annotatedBeans.values().toArray()[0].getClass().getName();
     }
 
+    @GetMapping("/")
+    public @ResponseBody ResponseEntity allSessions() {
+        try {
+            LOGGER.log(Level.INFO, "Retrieving all known recording sessions");
+            final List<FlightRecorderPublicSession> sessions = flightRecorder.sessions();
+            return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(sessions);
+        } catch (final Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     @PutMapping("/")
     public @ResponseBody ResponseEntity startRecording(@RequestBody final StartRecordingCommand command) {
         try {
             LOGGER.log(Level.INFO, "Trying to start recording for {0} {1}", new Object[] {command.getDuration(), command.getTimeUnit()});
-            final long recordingId = flightRecorder.startRecordingFor(Duration.of(command.getDuration(), command.getTimeUnit()));
+            final long recordingId = flightRecorder.startRecordingFor(Duration.of(command.getDuration(), command.getTimeUnit()), "");
             LOGGER.log(Level.INFO, "Created recording with ID {0}", recordingId);
             return ResponseEntity.ok().contentType(MediaType.TEXT_PLAIN).body(Long.toString(recordingId));
         } catch (final Exception e) {

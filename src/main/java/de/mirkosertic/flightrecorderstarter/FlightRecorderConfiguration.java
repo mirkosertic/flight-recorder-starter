@@ -17,10 +17,12 @@ package de.mirkosertic.flightrecorderstarter;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.beans.factory.BeanFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+@ConditionalOnProperty(prefix = "flightrecorder", name = "enabled", havingValue = "true", matchIfMissing = true)
 @Configuration
 public class FlightRecorderConfiguration {
 

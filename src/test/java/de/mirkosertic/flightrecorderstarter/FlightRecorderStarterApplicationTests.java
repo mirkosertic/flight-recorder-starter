@@ -15,6 +15,7 @@
  */
 package de.mirkosertic.flightrecorderstarter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -23,6 +24,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -33,6 +35,25 @@ class FlightRecorderStarterApplicationTests {
 
 	@Autowired
 	private MockMvc mockMvc;
+
+	@Autowired
+	private ObjectMapper objectMapper;
+
+	@Test
+	void getRecordingAndCheckStatus() throws Exception {
+		final MvcResult result = mockMvc.perform(put("/actuator/flightrecorder")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("{\"duration\": \"5\",\"timeUnit\":\"SECONDS\"}"))
+				.andExpect(status().isOk())
+				.andReturn();
+
+		Thread.sleep(1_000);
+
+		final MvcResult status = mockMvc.perform(get("/actuator/flightrecorder")).andExpect(status().isOk()).andReturn();
+		final FlightRecorderPublicSession[] sessions = objectMapper.readValue(status.getResponse().getContentAsString(), FlightRecorderPublicSession[].class);
+
+		assertTrue(sessions.length > 0);
+	}
 
 	@Test
 	void getRecordingWhenFinished() throws Exception {

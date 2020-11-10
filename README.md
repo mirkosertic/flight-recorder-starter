@@ -89,3 +89,32 @@ The following `cURL` command stops the Flight Recording with ID `1` and discards
 ```
 curl -X DELETE http://localhost:8080/actuator/flightrecorder/1
 ```
+
+## Trigger Flight Recording based on Micrometer Metrics
+
+This starter allows automatic Flight Recording based on Micrometer Metrics.
+Using an application configuration file we can configure triggers based on 
+SpEL (Spring Expression Language) which are evaluated on a regular basis. Once
+a trigger expression evaluates to true, a Flight Recording in started with
+a predefined duration and configuration. The most common setup would be to
+trigger a Flight Recording profiling once CPU usage is above a given value.
+
+Here is a sample configuration file in YAML syntax:
+
+```
+flightrecorder:
+  enabled: true  # is this starter active?
+  recordingCleanupInterval: 5000 # try to cleanup old recordings every 5 seconds
+  triggerCheckInterval: 10000 # evaluate trigger expressions every 10 seconds
+  trigger:
+    - expression: meter('jvm.memory.used').tag('area','nonheap').tag('id','Metaspace').measurement('value') > 100
+      startRecordingCommand: 
+        duration: 60
+        timeUnit: SECONDS
+``` 
+
+The list of all created recordings can be seen as a JSON file using the following api:
+
+```
+http://localhost:8080/actuator/flightrecorder/
+```

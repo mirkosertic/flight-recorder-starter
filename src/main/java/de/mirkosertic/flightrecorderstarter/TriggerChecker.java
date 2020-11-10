@@ -89,7 +89,7 @@ public class TriggerChecker {
                                 flightRecorder.stopRecording(latestRecordingId);
                             }
                             final StartRecordingCommand startRecordingCommand = triggerSPEL.trigger.getStartRecordingCommand();
-                            final long newRecordingId = flightRecorder.startRecordingFor(Duration.of(startRecordingCommand.getDuration(), startRecordingCommand.getTimeUnit()));
+                            final long newRecordingId = flightRecorder.startRecordingFor(Duration.of(startRecordingCommand.getDuration(), startRecordingCommand.getTimeUnit()), triggerSPEL.trigger.getExpression());
 
                             latestRecordings.put(triggerSPEL, newRecordingId);
                         }

@@ -35,7 +35,7 @@ class MicrometerAdapterTest {
         final double result = adapter.meter("abc.jvm.memory.used")
                 .tag("area", "abc.nonheap")
                 .tag("id","abc.Metaspace")
-                .value("value");
+                .measurement("value");
 
         assertEquals(0d, result);
     }
@@ -46,7 +46,7 @@ class MicrometerAdapterTest {
         final double result = adapter.meter("jvm.memory.used")
                                                 .tag("area", "nonheap")
                                                 .tag("id","Metaspace")
-                                                .value("value");
+                                                .measurement("value");
 
         assertTrue(result > 0);
     }
