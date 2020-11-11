@@ -20,9 +20,16 @@ Just add the following dependency to your Spring Boot 2 project:
 <dependency>
   <groupId>de.mirkosertic</groupId>
   <artifactId>flight-recorder-starter</artifactId>
-  <version>1.1.1</version>
+  <version>2.0.0</version>
 </dependency>
 ```
+
+and don't forget to add the following configuration:
+
+```
+flightrecorder:
+  enabled: true  # is this starter active?
+``` 
 
 Please note: the minimum Java/JVM runtime version is 11!
 
