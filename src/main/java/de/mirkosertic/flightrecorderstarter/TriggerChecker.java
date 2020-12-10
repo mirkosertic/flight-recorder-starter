@@ -67,10 +67,12 @@ public class TriggerChecker {
         final SpelParserConfiguration config = new SpelParserConfiguration(SpelCompilerMode.IMMEDIATE, this.getClass().getClassLoader());
         final ExpressionParser parser = new SpelExpressionParser(config);
 
-        for (final Trigger trigger : dynamicConfiguration.getTrigger()) {
-            LOGGER.log(Level.INFO, "Registering trigger {0}", trigger.getExpression());
-            final Expression expression = parser.parseExpression(trigger.getExpression());
-            latestRecordings.put(new TriggerSPEL(trigger, expression), UNKNOWN_RECORDING_ID);
+        if (dynamicConfiguration.getTrigger() != null) {
+            for (final Trigger trigger : dynamicConfiguration.getTrigger()) {
+                LOGGER.log(Level.INFO, "Registering trigger {0}", trigger.getExpression());
+                final Expression expression = parser.parseExpression(trigger.getExpression());
+                latestRecordings.put(new TriggerSPEL(trigger, expression), UNKNOWN_RECORDING_ID);
+            }
         }
     }
 

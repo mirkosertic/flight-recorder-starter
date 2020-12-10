@@ -121,4 +121,22 @@ class TriggerCheckerTest {
 
         verifyNoInteractions(flightRecorder);
     }
+
+    @Test
+    void checkEnabledEmptytriggers() {
+
+        final FlightRecorderDynamicConfiguration configuration = new FlightRecorderDynamicConfiguration();
+        configuration.setEnabled(true);
+
+        final StartRecordingCommand startRecordingCommand = new StartRecordingCommand();
+        startRecordingCommand.setDuration(10);
+        startRecordingCommand.setTimeUnit(ChronoUnit.SECONDS);
+
+        final TriggerChecker checker = new TriggerChecker(beanFactory, configuration, flightRecorder, micrometerAdapter);
+
+        checker.check();
+        checker.check();
+
+        verifyNoInteractions(flightRecorder);
+    }
 }
