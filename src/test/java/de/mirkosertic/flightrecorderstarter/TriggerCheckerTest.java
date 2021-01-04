@@ -15,6 +15,7 @@
  */
 package de.mirkosertic.flightrecorderstarter;
 
+import de.mirkosertic.flightrecorderstarter.fixtures.FlightRecorderStarterApplication;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +33,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
+@SpringBootTest(classes = FlightRecorderStarterApplication.class)
 class TriggerCheckerTest {
 
     @Autowired
