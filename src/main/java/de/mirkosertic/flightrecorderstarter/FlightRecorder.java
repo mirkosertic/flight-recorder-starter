@@ -15,27 +15,20 @@
  */
 package de.mirkosertic.flightrecorderstarter;
 
+import jdk.jfr.Configuration;
+import jdk.jfr.Recording;
+import jdk.jfr.RecordingState;
+import org.springframework.scheduling.annotation.Scheduled;
+
 import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import org.springframework.scheduling.annotation.Scheduled;
-
-import jdk.jfr.Configuration;
-import jdk.jfr.Recording;
-import jdk.jfr.RecordingState;
 
 public class FlightRecorder {
 
@@ -106,7 +99,7 @@ public class FlightRecorder {
     }
 
     public void setRecordingOptions(final long recordingId, final Duration duration, final File filename)
-        throws IOException {
+            throws IOException {
         synchronized (this.recordings) {
             final RecordingSession recordingSession = this.recordings.get(recordingId);
             if (recordingSession != null) {
@@ -139,12 +132,12 @@ public class FlightRecorder {
     public void cleanupOldRecordings() {
         synchronized (this.recordings) {
             final Instant deadline = Instant.now()
-                .minus(this.configuration.getOldRecordingsTTL(), this.configuration.getOldRecordingsTTLTimeUnit());
+                    .minus(this.configuration.getOldRecordingsTTL(), this.configuration.getOldRecordingsTTLTimeUnit());
             final Set<Long> deletedRecordings = new HashSet<>();
             for (final Map.Entry<Long, RecordingSession> entry : this.recordings.entrySet()) {
                 final Recording recording = entry.getValue().recording;
                 if ((recording.getState() == RecordingState.STOPPED || recording.getState() == RecordingState.CLOSED) &&
-                    recording.getStartTime().isBefore(deadline)) {
+                        recording.getStartTime().isBefore(deadline)) {
                     try {
                         if (recording.getState() == RecordingState.STOPPED) {
                             recording.close();
@@ -178,12 +171,12 @@ public class FlightRecorder {
                 publicSession.setId(session.recording.getId());
                 publicSession.setStatus(session.recording.getState().name());
                 publicSession
-                    .setStartedAt(LocalDateTime.ofInstant(session.recording.getStartTime(), ZoneId.systemDefault()));
+                        .setStartedAt(LocalDateTime.ofInstant(session.recording.getStartTime(), ZoneId.systemDefault()));
                 if (session.recording.getState() == RecordingState.CLOSED
-                    || session.recording.getState() == RecordingState.STOPPED) {
+                        || session.recording.getState() == RecordingState.STOPPED) {
                     publicSession
-                        .setFinishedAt(
-                            LocalDateTime.ofInstant(session.recording.getStopTime(), ZoneId.systemDefault()));
+                            .setFinishedAt(
+                                    LocalDateTime.ofInstant(session.recording.getStopTime(), ZoneId.systemDefault()));
                 }
                 publicSession.setDescription(session.description);
                 result.add(publicSession);
