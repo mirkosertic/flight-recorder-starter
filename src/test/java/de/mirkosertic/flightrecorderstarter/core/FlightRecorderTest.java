@@ -22,7 +22,6 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class FlightRecorderTest {
 
-    private FlightRecorder flightRecorder;
     private final Map<Long, RecordingSession> spyRecordings;
     private final FlightRecorderDynamicConfiguration mockConfiguration;
 
@@ -44,10 +43,10 @@ class FlightRecorderTest {
 
         given(this.mockConfiguration.getJfrBasePath()).willReturn(temporalPath.toFile().getAbsolutePath());
 
-        this.flightRecorder = new FlightRecorder(this.mockConfiguration, this.spyRecordings);
+        final FlightRecorder flightRecorder = new FlightRecorder(this.mockConfiguration, this.spyRecordings);
 
         //When
-        final long recordingId = this.flightRecorder.startRecordingFor(Duration.ofMillis(10), "dummyDescription");
+        final long recordingId = flightRecorder.startRecordingFor(Duration.ofMillis(10), "dummyDescription");
 
         //Then
         final RecordingSession recordingSession = this.spyRecordings.get(recordingId);
@@ -63,10 +62,10 @@ class FlightRecorderTest {
 
         given(this.mockConfiguration.getJfrBasePath()).willReturn(null);
 
-        this.flightRecorder = new FlightRecorder(this.mockConfiguration, this.spyRecordings);
+        final FlightRecorder flightRecorder = new FlightRecorder(this.mockConfiguration, this.spyRecordings);
 
         //When
-        final long recordingId = this.flightRecorder.startRecordingFor(Duration.ofMillis(10), "dummyDescription");
+        final long recordingId = flightRecorder.startRecordingFor(Duration.ofMillis(10), "dummyDescription");
 
         //Then
         final RecordingSession recordingSession = this.spyRecordings.get(recordingId);
