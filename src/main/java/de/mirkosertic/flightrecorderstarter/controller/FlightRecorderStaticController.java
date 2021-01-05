@@ -32,42 +32,42 @@ public class FlightRecorderStaticController {
     @GetMapping(D3_V4_MIN_JS)
     public ResponseEntity downloadRecording2() {
         return ResponseEntity.ok()
-            .headers(createHttpHeaders())
-            .contentType(TEXT_JAVASCRIPT)
-            .body(new ClassPathResource(D3_V4_MIN_JS));
+                .headers(createHttpHeaders())
+                .contentType(TEXT_JAVASCRIPT)
+                .body(new ClassPathResource(D3_V4_MIN_JS));
     }
 
     @GetMapping(D3_FLAMEGRAPH_MIN_JS)
     public ResponseEntity downloadRecording3() {
         return ResponseEntity.ok()
-            .headers(createHttpHeaders())
-            .contentType(TEXT_JAVASCRIPT)
-            .body(new ClassPathResource(D3_FLAMEGRAPH_MIN_JS));
+                .headers(createHttpHeaders())
+                .contentType(TEXT_JAVASCRIPT)
+                .body(new ClassPathResource(D3_FLAMEGRAPH_MIN_JS));
 
     }
 
     @GetMapping(D3_FLAMEGRAPH_COLOR_MAPPER_MIN_JS)
     public ResponseEntity downloadRecording4() {
         return ResponseEntity.ok()
-            .headers(createHttpHeaders())
-            .contentType(TEXT_JAVASCRIPT)
-            .body(new ClassPathResource(D3_FLAMEGRAPH_COLOR_MAPPER_MIN_JS));
+                .headers(createHttpHeaders())
+                .contentType(TEXT_JAVASCRIPT)
+                .body(new ClassPathResource(D3_FLAMEGRAPH_COLOR_MAPPER_MIN_JS));
     }
 
     @GetMapping(D3_FLAMEGRAPH_TOOLTIP_MIN_JS)
     public ResponseEntity downloadRecording5() {
         return ResponseEntity.ok()
-            .headers(createHttpHeaders())
-            .contentType(TEXT_JAVASCRIPT)
-            .body(new ClassPathResource(D3_FLAMEGRAPH_TOOLTIP_MIN_JS));
+                .headers(createHttpHeaders())
+                .contentType(TEXT_JAVASCRIPT)
+                .body(new ClassPathResource(D3_FLAMEGRAPH_TOOLTIP_MIN_JS));
     }
 
     @GetMapping(D3_FLAMEGRAPH_CSS)
     public ResponseEntity downloadRecording6() {
         return ResponseEntity.ok()
-            .headers(createHttpHeaders())
-            .contentType(TEXT_CSS)
-            .body(new ClassPathResource(D3_FLAMEGRAPH_CSS));
+                .headers(createHttpHeaders())
+                .contentType(TEXT_CSS)
+                .body(new ClassPathResource(D3_FLAMEGRAPH_CSS));
     }
 
     private HttpHeaders createHttpHeaders() {

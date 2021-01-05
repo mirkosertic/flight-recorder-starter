@@ -15,13 +15,7 @@
  */
 package de.mirkosertic.flightrecorderstarter;
 
-import java.io.File;
-import java.time.Duration;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.actuate.endpoint.web.annotation.RestControllerEndpoint;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
@@ -30,13 +24,14 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.File;
+import java.time.Duration;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @RestControllerEndpoint(id = "flightrecorder")
 public class FlightRecorderEndpoint {
@@ -48,15 +43,15 @@ public class FlightRecorderEndpoint {
     private final FlightRecorder flightRecorder;
 
     public FlightRecorderEndpoint(
-        final ApplicationContext applicationContext,
-        final FlightRecorder flightRecorder) {
+            final ApplicationContext applicationContext,
+            final FlightRecorder flightRecorder) {
         this.applicationContext = applicationContext;
         this.flightRecorder = flightRecorder;
     }
 
     private String findBootClass() {
         final Map<String, Object> annotatedBeans = this.applicationContext
-            .getBeansWithAnnotation(SpringBootApplication.class);
+                .getBeansWithAnnotation(SpringBootApplication.class);
         return annotatedBeans.isEmpty() ? null : annotatedBeans.values().toArray()[0].getClass().getName();
     }
 
@@ -75,9 +70,9 @@ public class FlightRecorderEndpoint {
     public ResponseEntity startRecording(@RequestBody final StartRecordingCommand command) {
         try {
             LOGGER.log(Level.INFO, "Trying to start recording for {0} {1}",
-                new Object[]{command.getDuration(), command.getTimeUnit()});
+                    new Object[]{command.getDuration(), command.getTimeUnit()});
             final long recordingId = this.flightRecorder
-                .startRecordingFor(Duration.of(command.getDuration(), command.getTimeUnit()), "");
+                    .startRecordingFor(Duration.of(command.getDuration(), command.getTimeUnit()), "");
             LOGGER.log(Level.INFO, "Created recording with ID {0}", recordingId);
             return ResponseEntity.ok().contentType(MediaType.TEXT_PLAIN).body(Long.toString(recordingId));
         } catch (final Exception e) {
@@ -105,9 +100,9 @@ public class FlightRecorderEndpoint {
         headers.add("Expires", "0");
 
         return ResponseEntity.ok()
-            .headers(headers)
-            .contentType(MediaType.TEXT_HTML)
-            .body(new ClassPathResource("/flamegraph.html"));
+                .headers(headers)
+                .contentType(MediaType.TEXT_HTML)
+                .body(new ClassPathResource("/flamegraph.html"));
     }
 
     @GetMapping("/{recordingId}/rawflamegraph.html")
@@ -119,9 +114,9 @@ public class FlightRecorderEndpoint {
         headers.add("Expires", "0");
 
         return ResponseEntity.ok()
-            .headers(headers)
-            .contentType(MediaType.TEXT_HTML)
-            .body(new ClassPathResource("/rawflamegraph.html"));
+                .headers(headers)
+                .contentType(MediaType.TEXT_HTML)
+                .body(new ClassPathResource("/rawflamegraph.html"));
     }
 
     @GetMapping("/{recordingId}/data.json")
@@ -149,14 +144,14 @@ public class FlightRecorderEndpoint {
             }
             final String jsonData = mapper.writeValueAsString(graph.getRoot());
             return ResponseEntity.ok()
-                .headers(headers)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(jsonData);
+                    .headers(headers)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(jsonData);
 
         } catch (final Exception e) {
             LOGGER.log(Level.WARNING, "Could not create json data for flight recording", e);
             return ResponseEntity.badRequest()
-                .body(e.getMessage());
+                    .body(e.getMessage());
         }
     }
 
@@ -176,14 +171,14 @@ public class FlightRecorderEndpoint {
             final FlameGraph graph = FlameGraph.from(file);
             final String jsonData = mapper.writeValueAsString(graph.getRoot());
             return ResponseEntity.ok()
-                .headers(headers)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(jsonData);
+                    .headers(headers)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(jsonData);
 
         } catch (final Exception e) {
             LOGGER.log(Level.WARNING, "Could not create json data for flight recording", e);
             return ResponseEntity.badRequest()
-                .body(e.getMessage());
+                    .body(e.getMessage());
         }
     }
 
@@ -195,15 +190,15 @@ public class FlightRecorderEndpoint {
         if (file != null) {
             final HttpHeaders headers = new HttpHeaders();
             headers
-                .add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=flightrecording_" + recordingId + ".jfr");
+                    .add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=flightrecording_" + recordingId + ".jfr");
             headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
             headers.add("Pragma", "no-cache");
             headers.add("Expires", "0");
 
             return ResponseEntity.ok()
-                .headers(headers)
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .body(new FileSystemResource(file));
+                    .headers(headers)
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .body(new FileSystemResource(file));
         }
         return ResponseEntity.notFound().build();
     }

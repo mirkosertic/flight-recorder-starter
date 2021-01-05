@@ -15,6 +15,9 @@
  */
 package de.mirkosertic.flightrecorderstarter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import de.mirkosertic.flightrecorderstarter.fixtures.FlightRecorderStarterApplication;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,15 +25,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import de.mirkosertic.flightrecorderstarter.fixtures.FlightRecorderStarterApplication;
-import org.junit.jupiter.api.Test;
-
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest(classes = FlightRecorderStarterApplication.class)
 @AutoConfigureMockMvc
@@ -45,48 +43,48 @@ class FlightRecorderStarterApplicationTests {
     @Test
     void getRecordingAndCheckStatus() throws Exception {
         final MvcResult result = this.mockMvc.perform(put("/actuator/flightrecorder")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content("{\"duration\": \"5\",\"timeUnit\":\"SECONDS\"}"))
-            .andExpect(status().isOk())
-            .andReturn();
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"duration\": \"5\",\"timeUnit\":\"SECONDS\"}"))
+                .andExpect(status().isOk())
+                .andReturn();
 
         Thread.sleep(1_000);
 
         final MvcResult status = this.mockMvc.perform(get("/actuator/flightrecorder")).andExpect(status().isOk())
-            .andReturn();
+                .andReturn();
         final FlightRecorderPublicSession[] sessions = this.objectMapper
-            .readValue(status.getResponse().getContentAsString(), FlightRecorderPublicSession[].class);
+                .readValue(status.getResponse().getContentAsString(), FlightRecorderPublicSession[].class);
 
         assertTrue(sessions.length > 0);
 
-			this.mockMvc.perform(get("/actuator/flightrecorder/static/d3.v4.min.js")).andExpect(status().isOk());
+        this.mockMvc.perform(get("/actuator/flightrecorder/static/d3.v4.min.js")).andExpect(status().isOk());
     }
 
     @Test
     void getRecordingWhenFinished() throws Exception {
         final MvcResult result = this.mockMvc.perform(put("/actuator/flightrecorder")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content("{\"duration\": \"5\",\"timeUnit\":\"SECONDS\"}"))
-            .andExpect(status().isOk())
-            .andReturn();
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"duration\": \"5\",\"timeUnit\":\"SECONDS\"}"))
+                .andExpect(status().isOk())
+                .andReturn();
 
         Thread.sleep(10_000);
 
-			this.mockMvc.perform(get("/actuator/flightrecorder/" + result.getResponse().getContentAsString()))
-            .andExpect(status().isOk());
+        this.mockMvc.perform(get("/actuator/flightrecorder/" + result.getResponse().getContentAsString()))
+                .andExpect(status().isOk());
     }
 
     @Test
     void getRecordingWhenNotFinished() throws Exception {
         final MvcResult result = this.mockMvc.perform(put("/actuator/flightrecorder")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content("{\"duration\": \"5\",\"timeUnit\":\"SECONDS\"}"))
-            .andExpect(status().isOk())
-            .andReturn();
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"duration\": \"5\",\"timeUnit\":\"SECONDS\"}"))
+                .andExpect(status().isOk())
+                .andReturn();
 
         Thread.sleep(1_000);
 
-			this.mockMvc.perform(get("/actuator/flightrecorder/" + result.getResponse().getContentAsString()))
-            .andExpect(status().isOk());
+        this.mockMvc.perform(get("/actuator/flightrecorder/" + result.getResponse().getContentAsString()))
+                .andExpect(status().isOk());
     }
 }
