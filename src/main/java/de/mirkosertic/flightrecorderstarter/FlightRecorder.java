@@ -26,13 +26,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -59,26 +53,33 @@ public class FlightRecorder {
     }
 
     public long newRecording(final String description) {
-        final List<Configuration> configs = Configuration.getConfigurations();
-        final Map<String, String> settings = new HashMap<>();
-        for (final Configuration config : configs) {
-            LOGGER.log(Level.INFO, "Found configuration {0}", config.getName());
-            if (config.getName().contains("profile")) {
-                LOGGER.log(Level.INFO, "Using configuration {0}", config.getName());
-                settings.putAll(config.getSettings());
-            }
-        }
-        final Recording recording = new Recording(settings);
+        final Recording recording = new Recording(getConfigurationSettings(Configuration.getConfigurations()));
         recording.setName("Spring Boot Starter Flight Recording");
-        synchronized (recordings) {
-            recordings.put(recording.getId(), new RecordingSession(recording, description));
+        synchronized (this.recordings) {
+            this.recordings.put(recording.getId(), new RecordingSession(recording, description));
         }
         return recording.getId();
     }
 
+    Map<String, String> getConfigurationSettings(final List<Configuration> configs) {
+        final Map<String, String> settings = new HashMap<>();
+
+        final String chosenConfiguration = this.configuration.getJfrCustomConfig() != null ? this.configuration.getJfrCustomConfig() : "profile";
+
+        for (final Configuration config : configs) {
+            LOGGER.log(Level.INFO, "Found configuration {0}", config.getName());
+            if (config.getName().contains(chosenConfiguration)) {
+                LOGGER.log(Level.INFO, "Using configuration {0}", config.getName());
+                settings.putAll(config.getSettings());
+            }
+        }
+
+        return settings;
+    }
+
     public void startRecording(final long recordingId) {
-        synchronized (recordings) {
-            final RecordingSession recordingSession = recordings.get(recordingId);
+        synchronized (this.recordings) {
+            final RecordingSession recordingSession = this.recordings.get(recordingId);
             if (recordingSession != null) {
                 recordingSession.recording.start();
             } else {
@@ -88,8 +89,8 @@ public class FlightRecorder {
     }
 
     public File stopRecording(final long recordingId) {
-        synchronized (recordings) {
-            final RecordingSession recordingSession = recordings.get(recordingId);
+        synchronized (this.recordings) {
+            final RecordingSession recordingSession = this.recordings.get(recordingId);
             if (recordingSession != null) {
                 final Recording recording = recordingSession.recording;
                 if (recording.getState() == RecordingState.RUNNING) {
@@ -104,8 +105,8 @@ public class FlightRecorder {
     }
 
     public void setRecordingOptions(final long recordingId, final Duration duration, final File filename) throws IOException {
-        synchronized (recordings) {
-            final RecordingSession recordingSession = recordings.get(recordingId);
+        synchronized (this.recordings) {
+            final RecordingSession recordingSession = this.recordings.get(recordingId);
             if (recordingSession != null) {
                 final Recording recording = recordingSession.recording;
                 recording.setDuration(duration);
@@ -118,7 +119,7 @@ public class FlightRecorder {
     }
 
     public long startRecordingFor(final Duration duration, final String description) throws IOException {
-        synchronized (recordings) {
+        synchronized (this.recordings) {
             final long recordingId = newRecording(description);
             final File tempFile = File.createTempFile("recording", ".jfr");
 
@@ -134,10 +135,10 @@ public class FlightRecorder {
 
     @Scheduled(fixedDelayString = "${flightrecorder.recordingCleanupInterval:5000}")
     public void cleanupOldRecordings() {
-        synchronized (recordings) {
-            final Instant deadline = Instant.now().minus(configuration.getOldRecordingsTTL(), configuration.getOldRecordingsTTLTimeUnit());
+        synchronized (this.recordings) {
+            final Instant deadline = Instant.now().minus(this.configuration.getOldRecordingsTTL(), this.configuration.getOldRecordingsTTLTimeUnit());
             final Set<Long> deletedRecordings = new HashSet<>();
-            for (final Map.Entry<Long, RecordingSession> entry : recordings.entrySet()) {
+            for (final Map.Entry<Long, RecordingSession> entry : this.recordings.entrySet()) {
                 final Recording recording = entry.getValue().recording;
                 if ((recording.getState() == RecordingState.STOPPED || recording.getState() == RecordingState.CLOSED) &&
                         recording.getStartTime().isBefore(deadline)) {
@@ -146,18 +147,18 @@ public class FlightRecorder {
                             recording.close();
                         }
                     } catch (final Exception e) {
-                        LOGGER.log(Level.INFO, "Cannot close recording {0}", new Object[] {recording.getId()});
+                        LOGGER.log(Level.INFO, "Cannot close recording {0}", new Object[]{recording.getId()});
                     }
                     deletedRecordings.add(entry.getKey());
                 }
             }
-            deletedRecordings.forEach(recordings::remove);
+            deletedRecordings.forEach(this.recordings::remove);
         }
     }
 
     public boolean isRecordingStopped(final long recordingId) {
-        synchronized (recordings) {
-            final RecordingSession recordingSession = recordings.get(recordingId);
+        synchronized (this.recordings) {
+            final RecordingSession recordingSession = this.recordings.get(recordingId);
             if (recordingSession == null) {
                 return true;
             }
@@ -168,8 +169,8 @@ public class FlightRecorder {
 
     public List<FlightRecorderPublicSession> sessions() {
         final List<FlightRecorderPublicSession> result = new ArrayList<>();
-        synchronized (recordings) {
-            for (final RecordingSession session : recordings.values()) {
+        synchronized (this.recordings) {
+            for (final RecordingSession session : this.recordings.values()) {
                 final FlightRecorderPublicSession publicSession = new FlightRecorderPublicSession();
                 publicSession.setId(session.recording.getId());
                 publicSession.setStatus(session.recording.getState().name());
