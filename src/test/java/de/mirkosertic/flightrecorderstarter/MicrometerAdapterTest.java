@@ -15,6 +15,7 @@
  */
 package de.mirkosertic.flightrecorderstarter;
 
+import de.mirkosertic.flightrecorderstarter.fixtures.FlightRecorderStarterApplication;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SpringBootTest
+@SpringBootTest(classes = FlightRecorderStarterApplication.class)
 class MicrometerAdapterTest {
 
     @Autowired
@@ -31,10 +32,10 @@ class MicrometerAdapterTest {
 
     @Test
     void queryNotExistingMetric() {
-        final MicrometerAdapter adapter = new MicrometerAdapter(meterRegistry);
+        final MicrometerAdapter adapter = new MicrometerAdapter(this.meterRegistry);
         final double result = adapter.meter("abc.jvm.memory.used")
                 .tag("area", "abc.nonheap")
-                .tag("id","abc.Metaspace")
+                .tag("id", "abc.Metaspace")
                 .measurement("value");
 
         assertEquals(0d, result);
@@ -42,11 +43,11 @@ class MicrometerAdapterTest {
 
     @Test
     void queryMemoryUsed() {
-        final MicrometerAdapter adapter = new MicrometerAdapter(meterRegistry);
+        final MicrometerAdapter adapter = new MicrometerAdapter(this.meterRegistry);
         final double result = adapter.meter("jvm.memory.used")
-                                                .tag("area", "nonheap")
-                                                .tag("id","Metaspace")
-                                                .measurement("value");
+                .tag("area", "nonheap")
+                .tag("id", "Metaspace")
+                .measurement("value");
 
         assertTrue(result > 0);
     }

@@ -15,6 +15,7 @@
  */
 package de.mirkosertic.flightrecorderstarter;
 
+import de.mirkosertic.flightrecorderstarter.fixtures.FlightRecorderStarterApplication;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.BeanFactory;
@@ -30,7 +31,7 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SpringBootTest
+@SpringBootTest(classes = FlightRecorderStarterApplication.class)
 public class SPELTest {
 
     @Autowired
@@ -42,12 +43,12 @@ public class SPELTest {
     @Test
     void testEvaluate() {
 
-        final MicrometerAdapter adapter = new MicrometerAdapter(meterRegistry);
+        final MicrometerAdapter adapter = new MicrometerAdapter(this.meterRegistry);
         final SpelParserConfiguration config = new SpelParserConfiguration(SpelCompilerMode.IMMEDIATE, this.getClass().getClassLoader());
         final ExpressionParser parser = new SpelExpressionParser(config);
 
         final StandardEvaluationContext context = new StandardEvaluationContext(adapter);
-        context.setBeanResolver(new BeanFactoryResolver(beanFactory));
+        context.setBeanResolver(new BeanFactoryResolver(this.beanFactory));
 
         final Expression exp = parser.parseExpression("meter('jvm.memory.used').tag('area','nonheap').tag('id','Metaspace').measurement('value')");
         final double value = exp.getValue(context, Double.class);
