@@ -24,12 +24,7 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
 import java.time.Duration;
@@ -38,12 +33,11 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-@RestControllerEndpoint(id="flightrecorder")
+@RestControllerEndpoint(id = "flightrecorder")
 public class FlightRecorderEndpoint {
 
     private final static Logger LOGGER = Logger.getLogger(FlightRecorder.class.getCanonicalName());
-    private final static MediaType TEXT_CSS = new MediaType("text","css");
-    private final static MediaType TEXT_JAVASCRIPT = new MediaType("text","javascript");
+
 
     private final ApplicationContext applicationContext;
     private final FlightRecorder flightRecorder;
@@ -56,15 +50,16 @@ public class FlightRecorderEndpoint {
     }
 
     private String findBootClass() {
-        final Map<String, Object> annotatedBeans = applicationContext.getBeansWithAnnotation(SpringBootApplication.class);
+        final Map<String, Object> annotatedBeans = this.applicationContext
+                .getBeansWithAnnotation(SpringBootApplication.class);
         return annotatedBeans.isEmpty() ? null : annotatedBeans.values().toArray()[0].getClass().getName();
     }
 
     @GetMapping("/")
-    public @ResponseBody ResponseEntity allSessions() {
+    public ResponseEntity allSessions() {
         try {
             LOGGER.log(Level.INFO, "Retrieving all known recording sessions");
-            final List<FlightRecorderPublicSession> sessions = flightRecorder.sessions();
+            final List<FlightRecorderPublicSession> sessions = this.flightRecorder.sessions();
             return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(sessions);
         } catch (final Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -72,10 +67,12 @@ public class FlightRecorderEndpoint {
     }
 
     @PutMapping("/")
-    public @ResponseBody ResponseEntity startRecording(@RequestBody final StartRecordingCommand command) {
+    public ResponseEntity startRecording(@RequestBody final StartRecordingCommand command) {
         try {
-            LOGGER.log(Level.INFO, "Trying to start recording for {0} {1}", new Object[] {command.getDuration(), command.getTimeUnit()});
-            final long recordingId = flightRecorder.startRecordingFor(Duration.of(command.getDuration(), command.getTimeUnit()), "");
+            LOGGER.log(Level.INFO, "Trying to start recording for {0} {1}",
+                    new Object[]{command.getDuration(), command.getTimeUnit()});
+            final long recordingId = this.flightRecorder
+                    .startRecordingFor(Duration.of(command.getDuration(), command.getTimeUnit()), "");
             LOGGER.log(Level.INFO, "Created recording with ID {0}", recordingId);
             return ResponseEntity.ok().contentType(MediaType.TEXT_PLAIN).body(Long.toString(recordingId));
         } catch (final Exception e) {
@@ -84,10 +81,10 @@ public class FlightRecorderEndpoint {
     }
 
     @DeleteMapping("/{recordingId}")
-    public @ResponseBody ResponseEntity closeRecording(@PathVariable final long recordingId) {
+    public ResponseEntity closeRecording(@PathVariable final long recordingId) {
         try {
             LOGGER.log(Level.INFO, "Closing recording with ID {0}", recordingId);
-            flightRecorder.stopRecording(recordingId);
+            this.flightRecorder.stopRecording(recordingId);
             return ResponseEntity.ok().build();
         } catch (final Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -95,7 +92,7 @@ public class FlightRecorderEndpoint {
     }
 
     @GetMapping("/{recordingId}/flamegraph.html")
-    public @ResponseBody ResponseEntity downloadRecordingFlameGraph(@PathVariable final long recordingId) {
+    public ResponseEntity downloadRecordingFlameGraph(@PathVariable final long recordingId) {
 
         final HttpHeaders headers = new HttpHeaders();
         headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
@@ -109,7 +106,7 @@ public class FlightRecorderEndpoint {
     }
 
     @GetMapping("/{recordingId}/rawflamegraph.html")
-    public @ResponseBody ResponseEntity downloadRecordingRawFlameGraph(@PathVariable final long recordingId) {
+    public ResponseEntity downloadRecordingRawFlameGraph(@PathVariable final long recordingId) {
 
         final HttpHeaders headers = new HttpHeaders();
         headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
@@ -123,10 +120,10 @@ public class FlightRecorderEndpoint {
     }
 
     @GetMapping("/{recordingId}/data.json")
-    public @ResponseBody ResponseEntity downloadRecordingJson(@PathVariable final long recordingId) {
+    public ResponseEntity downloadRecordingJson(@PathVariable final long recordingId) {
 
         LOGGER.log(Level.INFO, "Closing recording with ID {0} and downloading file", recordingId);
-        final File file = flightRecorder.stopRecording(recordingId);
+        final File file = this.flightRecorder.stopRecording(recordingId);
 
         final HttpHeaders headers = new HttpHeaders();
         headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
@@ -154,15 +151,15 @@ public class FlightRecorderEndpoint {
         } catch (final Exception e) {
             LOGGER.log(Level.WARNING, "Could not create json data for flight recording", e);
             return ResponseEntity.badRequest()
-                .body(e.getMessage());
+                    .body(e.getMessage());
         }
     }
 
     @GetMapping("/{recordingId}/rawdata.json")
-    public @ResponseBody ResponseEntity downloadRecordingRawJson(@PathVariable final long recordingId) {
+    public ResponseEntity downloadRecordingRawJson(@PathVariable final long recordingId) {
 
         LOGGER.log(Level.INFO, "Closing recording with ID {0} and downloading file", recordingId);
-        final File file = flightRecorder.stopRecording(recordingId);
+        final File file = this.flightRecorder.stopRecording(recordingId);
 
         final HttpHeaders headers = new HttpHeaders();
         headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
@@ -185,83 +182,15 @@ public class FlightRecorderEndpoint {
         }
     }
 
-    @GetMapping("/{recordingId}/d3.v4.min.js")
-    public @ResponseBody ResponseEntity downloadRecording2(@PathVariable final long recordingId) {
-
-        final HttpHeaders headers = new HttpHeaders();
-        headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
-        headers.add("Pragma", "no-cache");
-        headers.add("Expires", "0");
-
-        return ResponseEntity.ok()
-                .headers(headers)
-                .contentType(TEXT_JAVASCRIPT)
-                .body(new ClassPathResource("/d3.v4.min.js"));
-    }
-
-    @GetMapping("/{recordingId}/d3-flamegraph.min.js")
-    public @ResponseBody ResponseEntity downloadRecording3(@PathVariable final long recordingId) {
-
-        final HttpHeaders headers = new HttpHeaders();
-        headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
-        headers.add("Pragma", "no-cache");
-        headers.add("Expires", "0");
-
-        return ResponseEntity.ok()
-                .headers(headers)
-                .contentType(TEXT_JAVASCRIPT)
-                .body(new ClassPathResource("/d3-flamegraph.min.js"));
-    }
-
-    @GetMapping("/{recordingId}/d3-flamegraph-colorMapper.min.js")
-    public @ResponseBody ResponseEntity downloadRecording4(@PathVariable final long recordingId) {
-
-        final HttpHeaders headers = new HttpHeaders();
-        headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
-        headers.add("Pragma", "no-cache");
-        headers.add("Expires", "0");
-
-        return ResponseEntity.ok()
-                .headers(headers)
-                .contentType(TEXT_JAVASCRIPT)
-                .body(new ClassPathResource("/d3-flamegraph-colorMapper.min.js"));
-    }
-
-    @GetMapping("/{recordingId}/d3-flamegraph-tooltip.min.js")
-    public @ResponseBody ResponseEntity downloadRecording5(@PathVariable final long recordingId) {
-
-        final HttpHeaders headers = new HttpHeaders();
-        headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
-        headers.add("Pragma", "no-cache");
-        headers.add("Expires", "0");
-
-        return ResponseEntity.ok()
-                .headers(headers)
-                .contentType(TEXT_JAVASCRIPT)
-                .body(new ClassPathResource("/d3-flamegraph-tooltip.min.js"));
-    }
-
-    @GetMapping("/{recordingId}/d3-flamegraph.css")
-    public @ResponseBody ResponseEntity downloadRecording6(@PathVariable final long recordingId) {
-
-        final HttpHeaders headers = new HttpHeaders();
-        headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
-        headers.add("Pragma", "no-cache");
-        headers.add("Expires", "0");
-
-        return ResponseEntity.ok()
-                .headers(headers)
-                .contentType(TEXT_CSS)
-                .body(new ClassPathResource("/d3-flamegraph.css"));
-    }
 
     @GetMapping("/{recordingId}")
-    public @ResponseBody ResponseEntity downloadRecording(@PathVariable final long recordingId) {
+    public ResponseEntity downloadRecording(@PathVariable final long recordingId) {
         LOGGER.log(Level.INFO, "Closing recording with ID {0} and downloading file", recordingId);
-        final File file = flightRecorder.stopRecording(recordingId);
+        final File file = this.flightRecorder.stopRecording(recordingId);
         if (file != null) {
             final HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=flightrecording_" + recordingId + ".jfr");
+            headers
+                    .add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=flightrecording_" + recordingId + ".jfr");
             headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
             headers.add("Pragma", "no-cache");
             headers.add("Expires", "0");
