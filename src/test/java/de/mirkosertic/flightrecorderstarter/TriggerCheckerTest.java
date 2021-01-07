@@ -15,6 +15,7 @@
  */
 package de.mirkosertic.flightrecorderstarter;
 
+import de.mirkosertic.flightrecorderstarter.fixtures.FlightRecorderStarterApplication;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,12 +28,9 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
-@SpringBootTest
+@SpringBootTest(classes = FlightRecorderStarterApplication.class)
 class TriggerCheckerTest {
 
     @Autowired
@@ -60,15 +58,15 @@ class TriggerCheckerTest {
 
         configuration.setTrigger(List.of(trigger));
 
-        final TriggerChecker checker = new TriggerChecker(beanFactory, configuration, flightRecorder, micrometerAdapter);
+        final TriggerChecker checker = new TriggerChecker(this.beanFactory, configuration, this.flightRecorder, this.micrometerAdapter);
 
-        when(flightRecorder.startRecordingFor(eq(Duration.of(10L, ChronoUnit.SECONDS)), eq(trigger.getExpression()))).thenReturn(20L);
-        when(flightRecorder.isRecordingStopped(eq(20L))).thenReturn(false);
+        when(this.flightRecorder.startRecordingFor(eq(Duration.of(10L, ChronoUnit.SECONDS)), eq(trigger.getExpression()))).thenReturn(20L);
+        when(this.flightRecorder.isRecordingStopped(eq(20L))).thenReturn(false);
         checker.check();
         checker.check();
 
-        verify(flightRecorder, times(1)).isRecordingStopped(eq(20L));
-        verify(flightRecorder, times(1)).startRecordingFor(eq(Duration.of(10, ChronoUnit.SECONDS)), eq(trigger.getExpression()));
+        verify(this.flightRecorder, times(1)).isRecordingStopped(eq(20L));
+        verify(this.flightRecorder, times(1)).startRecordingFor(eq(Duration.of(10, ChronoUnit.SECONDS)), eq(trigger.getExpression()));
     }
 
     @Test
@@ -87,15 +85,15 @@ class TriggerCheckerTest {
 
         configuration.setTrigger(List.of(trigger));
 
-        final TriggerChecker checker = new TriggerChecker(beanFactory, configuration, flightRecorder, micrometerAdapter);
+        final TriggerChecker checker = new TriggerChecker(this.beanFactory, configuration, this.flightRecorder, this.micrometerAdapter);
 
-        when(flightRecorder.startRecordingFor(eq(Duration.of(10L, ChronoUnit.SECONDS)), eq(trigger.getExpression()))).thenReturn(20L);
-        when(flightRecorder.isRecordingStopped(eq(20L))).thenReturn(true);
+        when(this.flightRecorder.startRecordingFor(eq(Duration.of(10L, ChronoUnit.SECONDS)), eq(trigger.getExpression()))).thenReturn(20L);
+        when(this.flightRecorder.isRecordingStopped(eq(20L))).thenReturn(true);
         checker.check();
         checker.check();
 
-        verify(flightRecorder, times(1)).isRecordingStopped(eq(20L));
-        verify(flightRecorder, times(2)).startRecordingFor(eq(Duration.of(10, ChronoUnit.SECONDS)), eq(trigger.getExpression()));
+        verify(this.flightRecorder, times(1)).isRecordingStopped(eq(20L));
+        verify(this.flightRecorder, times(2)).startRecordingFor(eq(Duration.of(10, ChronoUnit.SECONDS)), eq(trigger.getExpression()));
     }
 
     @Test
@@ -114,12 +112,12 @@ class TriggerCheckerTest {
 
         configuration.setTrigger(List.of(trigger));
 
-        final TriggerChecker checker = new TriggerChecker(beanFactory, configuration, flightRecorder, micrometerAdapter);
+        final TriggerChecker checker = new TriggerChecker(this.beanFactory, configuration, this.flightRecorder, this.micrometerAdapter);
 
         checker.check();
         checker.check();
 
-        verifyNoInteractions(flightRecorder);
+        verifyNoInteractions(this.flightRecorder);
     }
 
     @Test
@@ -132,11 +130,11 @@ class TriggerCheckerTest {
         startRecordingCommand.setDuration(10);
         startRecordingCommand.setTimeUnit(ChronoUnit.SECONDS);
 
-        final TriggerChecker checker = new TriggerChecker(beanFactory, configuration, flightRecorder, micrometerAdapter);
+        final TriggerChecker checker = new TriggerChecker(this.beanFactory, configuration, this.flightRecorder, this.micrometerAdapter);
 
         checker.check();
         checker.check();
 
-        verifyNoInteractions(flightRecorder);
+        verifyNoInteractions(this.flightRecorder);
     }
 }
