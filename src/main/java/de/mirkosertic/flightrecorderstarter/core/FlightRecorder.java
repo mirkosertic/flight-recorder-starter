@@ -28,7 +28,7 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -174,11 +174,11 @@ public class FlightRecorder {
                 publicSession.setId(session.getRecording().getId());
                 publicSession.setStatus(session.getRecording().getState().name());
                 publicSession
-                        .setStartedAt(LocalDateTime.ofInstant(session.getRecording().getStartTime(), ZoneOffset.UTC));
+                        .setStartedAt(LocalDateTime.ofInstant(session.getRecording().getStartTime(), ZoneId.systemDefault()));
                 if (session.getRecording().getState() == RecordingState.CLOSED
                         || session.getRecording().getState() == RecordingState.STOPPED) {
                     publicSession
-                            .setFinishedAt(LocalDateTime.ofInstant(session.getRecording().getStopTime(), ZoneOffset.UTC));
+                            .setFinishedAt(LocalDateTime.ofInstant(session.getRecording().getStopTime(), ZoneId.systemDefault()));
                 }
                 publicSession.setDescription(session.getDescription());
                 result.add(publicSession);
