@@ -1,4 +1,3 @@
-debug: true
 flightrecorder:
   enabled: true  # is this starter active?
   recordingCleanupInterval: 5000 # try to cleanup old recordings every 5 seconds
