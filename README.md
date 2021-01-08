@@ -114,8 +114,10 @@ flightrecorder.old-recordings-TTL=1
 flightrecorder.old-recordings-TTL-time-unit=Hours  # java.time.temporal.ChronoUnit available values
 ```
 
-A file will be removed when the status is STOPPED or CLOSED and the start time is before than now minus threshold
+A file will be removed when the status are STOPPED or CLOSED, and the start time is before than now minus threshold
 configured.
+
+IMPORTANT: Be aware that the main app should be annotated with @EnableScheduling to enable the scheduled processes.
 
 ## Trigger Flight Recording based on Micrometer Metrics
 
@@ -123,6 +125,8 @@ This starter allows automatic Flight Recording based on Micrometer Metrics. Usin
 can configure triggers based on SpEL (Spring Expression Language) which are evaluated on a regular basis. Once a trigger
 expression evaluates to true, a Flight Recording in started with a predefined duration and configuration. The most
 common setup would be to trigger a Flight Recording profiling once CPU usage is above a given value.
+
+IMPORTANT: Be aware that the main app should be annotated with @EnableScheduling to enable the scheduled processes.
 
 Here is a sample configuration file in YAML syntax:
 
