@@ -4,15 +4,13 @@
 
 This is a Spring Boot 2 Starter exposing the JDK Flight Recorder as a Spring Boot Actuator Endpoint.
 
-Normally the JDK Flight Recorder is available locally or by JMX remote. Depending on your deployment 
-scenario shell or JMX access might not be available for the application server. Here comes this handy
-starter into play!
+Normally the JDK Flight Recorder is available locally or by JMX remote. Depending on your deployment scenario shell or
+JMX access might not be available for the application server. Here comes this handy starter into play!
 
 # How
 
-This starter adds a new Spring Boot Actuator endpoint for JDK Flight Recorder remote control. This 
-RESTful endpoint allows starting and stopping Flight Recording and downloading the `.jfr` files
-for further analysis.
+This starter adds a new Spring Boot Actuator endpoint for JDK Flight Recorder remote control. This RESTful endpoint
+allows starting and stopping Flight Recording and downloading the `.jfr` files for further analysis.
 
 Just add the following dependency to your Spring Boot 2 project:
 
@@ -50,9 +48,8 @@ Date: Thu, 03 Sep 2020 11:24:53 GMT
 
 Flight Recording starts for a given period, in this case 60 seconds and stops then.
 
-Every recording session gets its own unique Flight Recording ID. The endpoint returns
-this ID as plain text, in this case ID `1`. This ID must be used to download the 
-recorded data.
+Every recording session gets its own unique Flight Recording ID. The endpoint returns this ID as plain text, in this
+case ID `1`. This ID must be used to download the recorded data.
 
 ## Downloading results
 
@@ -66,9 +63,8 @@ The downloaded `.jfr` file can be imported into JDK Mission Control (JMC) for fu
 
 ## Visiting the interactive Flamegraph
 
-This starter can generate an interactive Flamegraph from a Flight Recorder recording.
-You can gain a quick overview by visiting the following URL in your browser to see 
-the graph for a recording with ID `1`:
+This starter can generate an interactive Flamegraph from a Flight Recorder recording. You can gain a quick overview by
+visiting the following URL in your browser to see the graph for a recording with ID `1`:
 
 ```
 http://localhost:8080/actuator/flightrecorder/1/flamegraph.html
@@ -78,9 +74,9 @@ and you'll get:
 
 ![Flamegraph](docs/flamegraph.png)
 
-The starter automatically tries to visualize only classes belonging to the running
-Spring Boot application. It filters the stacktrace samples by classes that are in
-the package or sub-package of the running application instance annotated with a
+The starter automatically tries to visualize only classes belonging to the running Spring Boot application. It filters
+the stacktrace samples by classes that are in the package or sub-package of the running application instance annotated
+with a
 `@SpringBootApplication` annotation.
 
 However, you can always get the unfiltered Flamegraph by visiting:
@@ -89,22 +85,44 @@ However, you can always get the unfiltered Flamegraph by visiting:
 http://localhost:8080/actuator/flightrecorder/1/rawflamegraph.html
 ```
 
-## Stopping Flight Recording and discarding data
+## Stopping Flight Recording
 
-The following `cURL` command stops the Flight Recording with ID `1` and discards all data:
+The following `cURL` command stops the Flight Recording with ID `1`.
 
 ```
 curl -X DELETE http://localhost:8080/actuator/flightrecorder/1
 ```
 
+Later, this recording might be deleted in memory and physically by the scheduler process described below.
+
+### Auto-deletion process
+
+There is a process to delete automatically the recording files (whose status are STOPPED or CLOSED) periodically
+according the following property
+
+```
+flightrecorder.recording-cleanup-interval=5000
+```
+
+with default value set on 5000ms. The base unit is MILLISECONDS. Take into account that the deletion is permanently.
+
+The watermark used to annotate a recording as "removable" is the start time, The threshold is configured via the
+properties below:
+
+```
+flightrecorder.old-recordings-TTL=1
+flightrecorder.old-recordings-TTL-time-unit=Hours  # java.time.temporal.ChronoUnit available values
+```
+
+A file will be removed when the status is STOPPED or CLOSED and the start time is before than now minus threshold
+configured.
+
 ## Trigger Flight Recording based on Micrometer Metrics
 
-This starter allows automatic Flight Recording based on Micrometer Metrics.
-Using an application configuration file we can configure triggers based on 
-SpEL (Spring Expression Language) which are evaluated on a regular basis. Once
-a trigger expression evaluates to true, a Flight Recording in started with
-a predefined duration and configuration. The most common setup would be to
-trigger a Flight Recording profiling once CPU usage is above a given value.
+This starter allows automatic Flight Recording based on Micrometer Metrics. Using an application configuration file we
+can configure triggers based on SpEL (Spring Expression Language) which are evaluated on a regular basis. Once a trigger
+expression evaluates to true, a Flight Recording in started with a predefined duration and configuration. The most
+common setup would be to trigger a Flight Recording profiling once CPU usage is above a given value.
 
 Here is a sample configuration file in YAML syntax:
 
