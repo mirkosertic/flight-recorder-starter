@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.mirkosertic.flightrecorderstarter;
+package de.mirkosertic.flightrecorderstarter.trigger;
 
 import io.micrometer.core.instrument.Measurement;
 import io.micrometer.core.instrument.Meter;
@@ -34,18 +34,18 @@ public class MeterQuery {
     }
 
     public MeterQuery tag(final String tagKey, final String tagValue) {
-        requiredSearch.tag(tagKey, tagValue);
+        this.requiredSearch.tag(tagKey, tagValue);
         return this;
     }
 
     public MeterQuery tag(final String tagKey) {
-        requiredSearch.tagKeys(tagKey);
+        this.requiredSearch.tagKeys(tagKey);
         return this;
     }
 
     public double measurement(final String statisticsName) {
         try {
-            final Meter meter = requiredSearch.meter();
+            final Meter meter = this.requiredSearch.meter();
             for (final Measurement m : meter.measure()) {
                 if (m.getStatistic().getTagValueRepresentation().equals(statisticsName)) {
                     return m.getValue();

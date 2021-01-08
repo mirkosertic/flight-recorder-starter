@@ -13,18 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.mirkosertic.flightrecorderstarter;
+package de.mirkosertic.flightrecorderstarter.configuration;
 
-import io.micrometer.core.instrument.MeterRegistry;
-import org.springframework.beans.factory.BeanFactory;
+import de.mirkosertic.flightrecorderstarter.FlightRecorder;
+import de.mirkosertic.flightrecorderstarter.FlightRecorderEndpoint;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @ConditionalOnProperty(prefix = "flightrecorder", name = "enabled", havingValue = "true", matchIfMissing = true)
 @Configuration
-public class FlightRecorderConfiguration {
+@ImportAutoConfiguration(TriggerConfiguration.class)
+@EnableConfigurationProperties(FlightRecorderDynamicConfiguration.class)
+public class FlightRecorderAutoConfiguration {
 
     @Bean
     public FlightRecorder flightRecorder(final FlightRecorderDynamicConfiguration configuration) {
@@ -36,16 +40,5 @@ public class FlightRecorderConfiguration {
         return new FlightRecorderEndpoint(applicationContext, flightRecorder);
     }
 
-    @Bean
-    public MicrometerAdapter micrometerAdapter(final MeterRegistry meterRegistry) {
-        return new MicrometerAdapter(meterRegistry);
-    }
 
-    @Bean
-    public TriggerChecker triggerChecker(final BeanFactory beanFactory,
-                                         final FlightRecorderDynamicConfiguration dynamicConfiguration,
-                                         final FlightRecorder flightRecorder,
-                                         final MicrometerAdapter micrometerAdapter) {
-        return new TriggerChecker(beanFactory, dynamicConfiguration, flightRecorder, micrometerAdapter);
-    }
 }

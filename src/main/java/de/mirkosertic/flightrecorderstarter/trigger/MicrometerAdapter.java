@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.mirkosertic.flightrecorderstarter;
+package de.mirkosertic.flightrecorderstarter.trigger;
 
 import io.micrometer.core.instrument.MeterRegistry;
 
@@ -26,6 +26,6 @@ public class MicrometerAdapter {
     }
 
     public MeterQuery meter(final String meterName) {
-        return new MeterQuery(meterRegistry.get(meterName));
+        return new MeterQuery(this.meterRegistry.get(meterName));
     }
 }

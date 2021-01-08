@@ -13,15 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.mirkosertic.flightrecorderstarter;
+package de.mirkosertic.flightrecorderstarter.configuration;
 
+import de.mirkosertic.flightrecorderstarter.trigger.Trigger;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
 
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-@Configuration
 @ConfigurationProperties(prefix = "flightrecorder")
 public class FlightRecorderDynamicConfiguration {
 
@@ -31,7 +30,7 @@ public class FlightRecorderDynamicConfiguration {
     private List<Trigger> trigger;
 
     public boolean isEnabled() {
-        return enabled;
+        return this.enabled;
     }
 
     public void setEnabled(final boolean enabled) {
@@ -39,7 +38,7 @@ public class FlightRecorderDynamicConfiguration {
     }
 
     public long getOldRecordingsTTL() {
-        return oldRecordingsTTL;
+        return this.oldRecordingsTTL;
     }
 
     public void setOldRecordingsTTL(final long oldRecordingsTTL) {
@@ -47,7 +46,7 @@ public class FlightRecorderDynamicConfiguration {
     }
 
     public ChronoUnit getOldRecordingsTTLTimeUnit() {
-        return oldRecordingsTTLTimeUnit;
+        return this.oldRecordingsTTLTimeUnit;
     }
 
     public void setOldRecordingsTTLTimeUnit(final ChronoUnit oldRecordingsTTLTimeUnit) {
@@ -55,7 +54,7 @@ public class FlightRecorderDynamicConfiguration {
     }
 
     public List<Trigger> getTrigger() {
-        return trigger;
+        return this.trigger;
     }
 
     public void setTrigger(final List<Trigger> trigger) {
