@@ -29,9 +29,9 @@ public class FlightRecorderDynamicConfiguration {
     private long oldRecordingsTTL = 1;
     private ChronoUnit oldRecordingsTTLTimeUnit = ChronoUnit.HOURS;
     private String jfrBasePath;
-    private List<Trigger> trigger;
-
     private String jfrCustomConfig;
+
+    private List<Trigger> trigger;
 
     public boolean isEnabled() {
         return this.enabled;
