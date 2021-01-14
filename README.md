@@ -147,3 +147,15 @@ The list of all created recordings can be seen as a JSON file using the followin
 ```
 http://localhost:8080/actuator/flightrecorder/
 ```
+
+## Advanced Configuration
+
+### Location of recordings
+
+By default, all the recording files are stored at temporal system folder, ofter the "/tmp" folder. This base path can be
+changed through the following property:
+
+```
+flightrecorder:
+  jfr-base-path: /my-path 
+```

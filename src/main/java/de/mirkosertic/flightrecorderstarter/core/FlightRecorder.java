@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.mirkosertic.flightrecorderstarter;
+package de.mirkosertic.flightrecorderstarter.core;
 
+import de.mirkosertic.flightrecorderstarter.FlightRecorderDynamicConfiguration;
+import de.mirkosertic.flightrecorderstarter.FlightRecorderPublicSession;
 import jdk.jfr.Configuration;
 import jdk.jfr.Recording;
 import jdk.jfr.RecordingState;
@@ -22,6 +24,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -110,7 +113,13 @@ public class FlightRecorder {
     public long startRecordingFor(final Duration duration, final String description) throws IOException {
         synchronized (this.recordings) {
             final long recordingId = newRecording(description);
-            final File tempFile = File.createTempFile("recording", ".jfr");
+
+            File basePath = null;
+            if (this.configuration.getJfrBasePath() != null) {
+                basePath = Path.of(this.configuration.getJfrBasePath()).toFile();
+            }
+
+            final File tempFile = File.createTempFile("recording", ".jfr", basePath);
 
             LOGGER.log(Level.INFO, "Recording {0} to temp file {1}", new Object[]{recordingId, tempFile});
 

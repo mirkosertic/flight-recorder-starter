@@ -15,6 +15,7 @@
  */
 package de.mirkosertic.flightrecorderstarter;
 
+import de.mirkosertic.flightrecorderstarter.core.FlightRecorder;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -32,7 +33,8 @@ public class FlightRecorderConfiguration {
     }
 
     @Bean
-    public FlightRecorderEndpoint flightRecorderEndpoint(final ApplicationContext applicationContext, final FlightRecorder flightRecorder) {
+    public FlightRecorderEndpoint flightRecorderEndpoint(final ApplicationContext applicationContext,
+                                                         final FlightRecorder flightRecorder) {
         return new FlightRecorderEndpoint(applicationContext, flightRecorder);
     }
 
