@@ -81,7 +81,7 @@ public class TriggerChecker {
         }
     }
 
-    @Scheduled(fixedDelayString = "${flightrecorder.triggerCheckInterval:10000}")
+    @Scheduled(fixedDelayString = "${flightrecorder.triggerCheckInterval}")
     public void check() {
         if (this.dynamicConfiguration.isEnabled()) {
             final Set<TriggerSPEL> triggers = new HashSet<>(this.latestRecordings.keySet());

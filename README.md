@@ -101,6 +101,13 @@ can configure triggers based on SpEL (Spring Expression Language) which are eval
 expression evaluates to true, a Flight Recording in started with a predefined duration and configuration. The most
 common setup would be to trigger a Flight Recording profiling once CPU usage is above a given value.
 
+By default, this scheduled process is executed each 10 seconds. The default configuration can be changed thought this
+property:
+
+```properties
+flightrecorder.triggerCheckInterval=10000
+```
+
 Here is a sample configuration file in YAML syntax:
 
 ```yml
