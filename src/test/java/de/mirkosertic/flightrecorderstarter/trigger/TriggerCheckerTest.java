@@ -15,7 +15,7 @@
  */
 package de.mirkosertic.flightrecorderstarter.trigger;
 
-import de.mirkosertic.flightrecorderstarter.FlightRecorder;
+import de.mirkosertic.flightrecorderstarter.core.FlightRecorder;
 import de.mirkosertic.flightrecorderstarter.StartRecordingCommand;
 import de.mirkosertic.flightrecorderstarter.configuration.FlightRecorderAutoConfiguration;
 import de.mirkosertic.flightrecorderstarter.configuration.FlightRecorderDynamicConfiguration;
@@ -58,19 +58,23 @@ class TriggerCheckerTest {
 
         final Trigger trigger = new Trigger();
         trigger.setStartRecordingCommand(startRecordingCommand);
-        trigger.setExpression("meter('jvm.memory.used').tag('area','nonheap').tag('id','Metaspace').measurement('value') > 100");
+        trigger.setExpression(
+                "meter('jvm.memory.used').tag('area','nonheap').tag('id','Metaspace').measurement('value') > 100");
 
         configuration.setTrigger(List.of(trigger));
 
-        final TriggerChecker checker = new TriggerChecker(this.beanFactory, configuration, this.flightRecorder, this.micrometerAdapter);
+        final TriggerChecker checker = new TriggerChecker(this.beanFactory, configuration, this.flightRecorder,
+                this.micrometerAdapter);
 
-        when(this.flightRecorder.startRecordingFor(eq(Duration.of(10L, ChronoUnit.SECONDS)), eq(trigger.getExpression()))).thenReturn(20L);
+        when(this.flightRecorder.startRecordingFor(eq(Duration.of(10L, ChronoUnit.SECONDS)), eq(trigger.getExpression())))
+                .thenReturn(20L);
         when(this.flightRecorder.isRecordingStopped(eq(20L))).thenReturn(false);
         checker.check();
         checker.check();
 
         verify(this.flightRecorder, times(1)).isRecordingStopped(eq(20L));
-        verify(this.flightRecorder, times(1)).startRecordingFor(eq(Duration.of(10, ChronoUnit.SECONDS)), eq(trigger.getExpression()));
+        verify(this.flightRecorder, times(1))
+                .startRecordingFor(eq(Duration.of(10, ChronoUnit.SECONDS)), eq(trigger.getExpression()));
     }
 
     @Test
@@ -85,19 +89,23 @@ class TriggerCheckerTest {
 
         final Trigger trigger = new Trigger();
         trigger.setStartRecordingCommand(startRecordingCommand);
-        trigger.setExpression("meter('jvm.memory.used').tag('area','nonheap').tag('id','Metaspace').measurement('value') > 100");
+        trigger.setExpression(
+                "meter('jvm.memory.used').tag('area','nonheap').tag('id','Metaspace').measurement('value') > 100");
 
         configuration.setTrigger(List.of(trigger));
 
-        final TriggerChecker checker = new TriggerChecker(this.beanFactory, configuration, this.flightRecorder, this.micrometerAdapter);
+        final TriggerChecker checker = new TriggerChecker(this.beanFactory, configuration, this.flightRecorder,
+                this.micrometerAdapter);
 
-        when(this.flightRecorder.startRecordingFor(eq(Duration.of(10L, ChronoUnit.SECONDS)), eq(trigger.getExpression()))).thenReturn(20L);
+        when(this.flightRecorder.startRecordingFor(eq(Duration.of(10L, ChronoUnit.SECONDS)), eq(trigger.getExpression())))
+                .thenReturn(20L);
         when(this.flightRecorder.isRecordingStopped(eq(20L))).thenReturn(true);
         checker.check();
         checker.check();
 
         verify(this.flightRecorder, times(1)).isRecordingStopped(eq(20L));
-        verify(this.flightRecorder, times(2)).startRecordingFor(eq(Duration.of(10, ChronoUnit.SECONDS)), eq(trigger.getExpression()));
+        verify(this.flightRecorder, times(2))
+                .startRecordingFor(eq(Duration.of(10, ChronoUnit.SECONDS)), eq(trigger.getExpression()));
     }
 
     @Test
@@ -112,11 +120,13 @@ class TriggerCheckerTest {
 
         final Trigger trigger = new Trigger();
         trigger.setStartRecordingCommand(startRecordingCommand);
-        trigger.setExpression("meter('jvm.memory.used').tag('area','nonheap').tag('id','Metaspace').measurement('value') > 100");
+        trigger.setExpression(
+                "meter('jvm.memory.used').tag('area','nonheap').tag('id','Metaspace').measurement('value') > 100");
 
         configuration.setTrigger(List.of(trigger));
 
-        final TriggerChecker checker = new TriggerChecker(this.beanFactory, configuration, this.flightRecorder, this.micrometerAdapter);
+        final TriggerChecker checker = new TriggerChecker(this.beanFactory, configuration, this.flightRecorder,
+                this.micrometerAdapter);
 
         checker.check();
         checker.check();
@@ -134,7 +144,8 @@ class TriggerCheckerTest {
         startRecordingCommand.setDuration(10);
         startRecordingCommand.setTimeUnit(ChronoUnit.SECONDS);
 
-        final TriggerChecker checker = new TriggerChecker(this.beanFactory, configuration, this.flightRecorder, this.micrometerAdapter);
+        final TriggerChecker checker = new TriggerChecker(this.beanFactory, configuration, this.flightRecorder,
+                this.micrometerAdapter);
 
         checker.check();
         checker.check();

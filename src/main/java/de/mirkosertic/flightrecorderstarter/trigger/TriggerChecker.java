@@ -15,7 +15,7 @@
  */
 package de.mirkosertic.flightrecorderstarter.trigger;
 
-import de.mirkosertic.flightrecorderstarter.FlightRecorder;
+import de.mirkosertic.flightrecorderstarter.core.FlightRecorder;
 import de.mirkosertic.flightrecorderstarter.StartRecordingCommand;
 import de.mirkosertic.flightrecorderstarter.configuration.FlightRecorderDynamicConfiguration;
 import org.springframework.beans.factory.BeanFactory;
@@ -43,6 +43,7 @@ public class TriggerChecker {
     public static final long UNKNOWN_RECORDING_ID = -1L;
 
     private static class TriggerSPEL {
+
         private final Trigger trigger;
         private final Expression expression;
 
@@ -67,7 +68,8 @@ public class TriggerChecker {
         this.evaluationContext = new StandardEvaluationContext(micrometerAdapter);
         this.evaluationContext.setBeanResolver(new BeanFactoryResolver(beanFactory));
 
-        final SpelParserConfiguration config = new SpelParserConfiguration(SpelCompilerMode.IMMEDIATE, this.getClass().getClassLoader());
+        final SpelParserConfiguration config = new SpelParserConfiguration(SpelCompilerMode.IMMEDIATE,
+                this.getClass().getClassLoader());
         final ExpressionParser parser = new SpelExpressionParser(config);
 
         if (dynamicConfiguration.getTrigger() != null) {
@@ -93,13 +95,17 @@ public class TriggerChecker {
                             if (latestRecordingId != UNKNOWN_RECORDING_ID) {
                                 this.flightRecorder.stopRecording(latestRecordingId);
                             }
-                            final StartRecordingCommand startRecordingCommand = triggerSPEL.trigger.getStartRecordingCommand();
-                            final long newRecordingId = this.flightRecorder.startRecordingFor(Duration.of(startRecordingCommand.getDuration(), startRecordingCommand.getTimeUnit()), triggerSPEL.trigger.getExpression());
+                            final StartRecordingCommand startRecordingCommand = triggerSPEL.trigger
+                                    .getStartRecordingCommand();
+                            final long newRecordingId = this.flightRecorder.startRecordingFor(
+                                    Duration.of(startRecordingCommand.getDuration(), startRecordingCommand.getTimeUnit()),
+                                    triggerSPEL.trigger.getExpression());
 
                             this.latestRecordings.put(triggerSPEL, newRecordingId);
                         }
                     } catch (final Exception e) {
-                        LOGGER.log(Level.WARNING, "Error evaluating trigger {0} : {1}", new Object[]{triggerSPEL.trigger.getExpression(), e.getMessage()});
+                        LOGGER.log(Level.WARNING, "Error evaluating trigger {0} : {1}",
+                                new Object[]{triggerSPEL.trigger.getExpression(), e.getMessage()});
                     }
                 }
             }

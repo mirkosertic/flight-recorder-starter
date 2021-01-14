@@ -126,3 +126,15 @@ By default, this feature is enabled. In case you want to disable it, set the fol
 ```properties
 flightrecorder.trigger-enabled=false
 ```
+
+## Advanced Configuration
+
+### Location of recordings
+
+By default, all the recording files are stored at temporal system folder, ofter the "/tmp" folder. This base path can be
+changed through the following property:
+
+```
+flightrecorder:
+  jfr-base-path: /my-path 
+```

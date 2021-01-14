@@ -36,7 +36,8 @@ public class FlightRecorderAutoConfiguration {
     }
 
     @Bean
-    public FlightRecorderEndpoint flightRecorderEndpoint(final ApplicationContext applicationContext, final FlightRecorder flightRecorder) {
+    public FlightRecorderEndpoint flightRecorderEndpoint(final ApplicationContext applicationContext,
+                                                         final FlightRecorder flightRecorder) {
         return new FlightRecorderEndpoint(applicationContext, flightRecorder);
     }
 
