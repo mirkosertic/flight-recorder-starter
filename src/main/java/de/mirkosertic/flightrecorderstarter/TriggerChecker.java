@@ -15,6 +15,7 @@
  */
 package de.mirkosertic.flightrecorderstarter;
 
+import de.mirkosertic.flightrecorderstarter.core.FlightRecorder;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.expression.BeanFactoryResolver;
 import org.springframework.expression.Expression;
@@ -40,6 +41,7 @@ public class TriggerChecker {
     public static final long UNKNOWN_RECORDING_ID = -1L;
 
     private static class TriggerSPEL {
+
         private final Trigger trigger;
         private final Expression expression;
 
@@ -64,39 +66,44 @@ public class TriggerChecker {
         this.evaluationContext = new StandardEvaluationContext(micrometerAdapter);
         this.evaluationContext.setBeanResolver(new BeanFactoryResolver(beanFactory));
 
-        final SpelParserConfiguration config = new SpelParserConfiguration(SpelCompilerMode.IMMEDIATE, this.getClass().getClassLoader());
+        final SpelParserConfiguration config = new SpelParserConfiguration(SpelCompilerMode.IMMEDIATE,
+                this.getClass().getClassLoader());
         final ExpressionParser parser = new SpelExpressionParser(config);
 
         if (dynamicConfiguration.getTrigger() != null) {
             for (final Trigger trigger : dynamicConfiguration.getTrigger()) {
                 LOGGER.log(Level.INFO, "Registering trigger {0}", trigger.getExpression());
                 final Expression expression = parser.parseExpression(trigger.getExpression());
-                latestRecordings.put(new TriggerSPEL(trigger, expression), UNKNOWN_RECORDING_ID);
+                this.latestRecordings.put(new TriggerSPEL(trigger, expression), UNKNOWN_RECORDING_ID);
             }
         }
     }
 
     @Scheduled(fixedDelayString = "${flightrecorder.triggerCheckInterval:10000}")
     public void check() {
-        if (dynamicConfiguration.isEnabled()) {
-            final Set<TriggerSPEL> triggers = new HashSet<>(latestRecordings.keySet());
+        if (this.dynamicConfiguration.isEnabled()) {
+            final Set<TriggerSPEL> triggers = new HashSet<>(this.latestRecordings.keySet());
             for (final TriggerSPEL triggerSPEL : triggers) {
-                final long latestRecordingId = latestRecordings.get(triggerSPEL);
-                if (latestRecordingId == UNKNOWN_RECORDING_ID || flightRecorder.isRecordingStopped(latestRecordingId)) {
+                final long latestRecordingId = this.latestRecordings.get(triggerSPEL);
+                if (latestRecordingId == UNKNOWN_RECORDING_ID || this.flightRecorder.isRecordingStopped(latestRecordingId)) {
                     try {
-                        final Boolean checkResult = triggerSPEL.expression.getValue(evaluationContext, Boolean.class);
+                        final Boolean checkResult = triggerSPEL.expression.getValue(this.evaluationContext, Boolean.class);
                         if (checkResult != null && checkResult) {
                             // Triggered
                             if (latestRecordingId != UNKNOWN_RECORDING_ID) {
-                                flightRecorder.stopRecording(latestRecordingId);
+                                this.flightRecorder.stopRecording(latestRecordingId);
                             }
-                            final StartRecordingCommand startRecordingCommand = triggerSPEL.trigger.getStartRecordingCommand();
-                            final long newRecordingId = flightRecorder.startRecordingFor(Duration.of(startRecordingCommand.getDuration(), startRecordingCommand.getTimeUnit()), triggerSPEL.trigger.getExpression());
+                            final StartRecordingCommand startRecordingCommand = triggerSPEL.trigger
+                                    .getStartRecordingCommand();
+                            final long newRecordingId = this.flightRecorder.startRecordingFor(
+                                    Duration.of(startRecordingCommand.getDuration(), startRecordingCommand.getTimeUnit()),
+                                    triggerSPEL.trigger.getExpression());
 
-                            latestRecordings.put(triggerSPEL, newRecordingId);
+                            this.latestRecordings.put(triggerSPEL, newRecordingId);
                         }
                     } catch (final Exception e) {
-                        LOGGER.log(Level.WARNING, "Error evaluating trigger {0} : {1}", new Object[]{triggerSPEL.trigger.getExpression(), e.getMessage()});
+                        LOGGER.log(Level.WARNING, "Error evaluating trigger {0} : {1}",
+                                new Object[]{triggerSPEL.trigger.getExpression(), e.getMessage()});
                     }
                 }
             }

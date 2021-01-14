@@ -16,6 +16,7 @@
 package de.mirkosertic.flightrecorderstarter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.mirkosertic.flightrecorderstarter.core.FlightRecorder;
 import org.springframework.boot.actuate.endpoint.web.annotation.RestControllerEndpoint;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;

@@ -28,6 +28,7 @@ public class FlightRecorderDynamicConfiguration {
     private boolean enabled = true;
     private long oldRecordingsTTL = 1;
     private ChronoUnit oldRecordingsTTLTimeUnit = ChronoUnit.HOURS;
+    private String jfrBasePath;
     private List<Trigger> trigger;
 
     private String jfrCustomConfig;
@@ -64,6 +65,14 @@ public class FlightRecorderDynamicConfiguration {
         this.trigger = trigger;
     }
 
+    public String getJfrBasePath() {
+        return this.jfrBasePath;
+    }
+
+    public void setJfrBasePath(final String jfrBasePath) {
+        this.jfrBasePath = jfrBasePath;
+    }
+
     public String getJfrCustomConfig() {
         return this.jfrCustomConfig;
     }
@@ -71,5 +80,4 @@ public class FlightRecorderDynamicConfiguration {
     public void setJfrCustomConfig(final String jfrCustomConfig) {
         this.jfrCustomConfig = jfrCustomConfig;
     }
-
 }
