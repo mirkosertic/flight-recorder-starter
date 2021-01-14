@@ -1,6 +1,6 @@
 package de.mirkosertic.flightrecorderstarter.configuration;
 
-import de.mirkosertic.flightrecorderstarter.FlightRecorder;
+import de.mirkosertic.flightrecorderstarter.core.FlightRecorder;
 import de.mirkosertic.flightrecorderstarter.trigger.MicrometerAdapter;
 import de.mirkosertic.flightrecorderstarter.trigger.TriggerChecker;
 import io.micrometer.core.instrument.MeterRegistry;

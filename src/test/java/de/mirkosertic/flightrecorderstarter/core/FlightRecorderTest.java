@@ -1,7 +1,7 @@
 package de.mirkosertic.flightrecorderstarter.core;
 
 
-import de.mirkosertic.flightrecorderstarter.FlightRecorderDynamicConfiguration;
+import de.mirkosertic.flightrecorderstarter.configuration.FlightRecorderDynamicConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

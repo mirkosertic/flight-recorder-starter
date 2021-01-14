@@ -15,8 +15,8 @@
  */
 package de.mirkosertic.flightrecorderstarter.configuration;
 
-import de.mirkosertic.flightrecorderstarter.FlightRecorder;
 import de.mirkosertic.flightrecorderstarter.FlightRecorderEndpoint;
+import de.mirkosertic.flightrecorderstarter.core.FlightRecorder;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;

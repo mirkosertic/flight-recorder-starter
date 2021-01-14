@@ -15,10 +15,10 @@
  */
 package de.mirkosertic.flightrecorderstarter.trigger;
 
-import de.mirkosertic.flightrecorderstarter.core.FlightRecorder;
 import de.mirkosertic.flightrecorderstarter.StartRecordingCommand;
 import de.mirkosertic.flightrecorderstarter.configuration.FlightRecorderAutoConfiguration;
 import de.mirkosertic.flightrecorderstarter.configuration.FlightRecorderDynamicConfiguration;
+import de.mirkosertic.flightrecorderstarter.core.FlightRecorder;
 import de.mirkosertic.flightrecorderstarter.fixtures.FlightRecorderStarterApplication;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.BeanFactory;

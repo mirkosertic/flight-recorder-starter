@@ -15,9 +15,9 @@
  */
 package de.mirkosertic.flightrecorderstarter.trigger;
 
-import de.mirkosertic.flightrecorderstarter.core.FlightRecorder;
 import de.mirkosertic.flightrecorderstarter.StartRecordingCommand;
 import de.mirkosertic.flightrecorderstarter.configuration.FlightRecorderDynamicConfiguration;
+import de.mirkosertic.flightrecorderstarter.core.FlightRecorder;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.expression.BeanFactoryResolver;
 import org.springframework.expression.Expression;
