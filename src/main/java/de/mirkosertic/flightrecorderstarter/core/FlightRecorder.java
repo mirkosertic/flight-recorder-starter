@@ -51,21 +51,28 @@ public class FlightRecorder {
     }
 
     public long newRecording(final String description) {
-        final List<Configuration> configs = Configuration.getConfigurations();
-        final Map<String, String> settings = new HashMap<>();
-        for (final Configuration config : configs) {
-            LOGGER.log(Level.INFO, "Found configuration {0}", config.getName());
-            if (config.getName().contains("profile")) {
-                LOGGER.log(Level.INFO, "Using configuration {0}", config.getName());
-                settings.putAll(config.getSettings());
-            }
-        }
-        final Recording recording = new Recording(settings);
+        final Recording recording = new Recording(getConfigurationSettings(Configuration.getConfigurations()));
         recording.setName("Spring Boot Starter Flight Recording");
         synchronized (this.recordings) {
             this.recordings.put(recording.getId(), new RecordingSession(recording, description));
         }
         return recording.getId();
+    }
+
+    Map<String, String> getConfigurationSettings(final List<Configuration> configs) {
+        final Map<String, String> settings = new HashMap<>();
+
+        final String chosenConfiguration = this.configuration.getJfrCustomConfig() != null ? this.configuration.getJfrCustomConfig() : "profile";
+
+        for (final Configuration config : configs) {
+            LOGGER.log(Level.INFO, "Found configuration {0}", config.getName());
+            if (config.getName().contains(chosenConfiguration)) {
+                LOGGER.log(Level.INFO, "Using configuration {0}", config.getName());
+                settings.putAll(config.getSettings());
+            }
+        }
+
+        return settings;
     }
 
     public void startRecording(final long recordingId) {
