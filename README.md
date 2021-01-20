@@ -4,13 +4,15 @@
 
 This is a Spring Boot 2 Starter exposing the JDK Flight Recorder as a Spring Boot Actuator Endpoint.
 
-Normally the JDK Flight Recorder is available locally or by JMX remote. Depending on your deployment scenario shell or
-JMX access might not be available for the application server. Here comes this handy starter into play!
+Normally the JDK Flight Recorder is available locally or by JMX remote. Depending on your deployment 
+scenario shell or JMX access might not be available for the application server. Here comes this handy
+starter into play!
 
 # How
 
-This starter adds a new Spring Boot Actuator endpoint for JDK Flight Recorder remote control. This RESTful endpoint
-allows starting and stopping Flight Recording and downloading the `.jfr` files for further analysis.
+This starter adds a new Spring Boot Actuator endpoint for JDK Flight Recorder remote control. This 
+RESTful endpoint allows starting and stopping Flight Recording and downloading the `.jfr` files
+for further analysis.
 
 Just add the following dependency to your Spring Boot 2 project:
 
@@ -48,8 +50,9 @@ Date: Thu, 03 Sep 2020 11:24:53 GMT
 
 Flight Recording starts for a given period, in this case 60 seconds and stops then.
 
-Every recording session gets its own unique Flight Recording ID. The endpoint returns this ID as plain text, in this
-case ID `1`. This ID must be used to download the recorded data.
+Every recording session gets its own unique Flight Recording ID. The endpoint returns
+this ID as plain text, in this case ID `1`. This ID must be used to download the 
+recorded data.
 
 ## Downloading results
 
@@ -63,8 +66,9 @@ The downloaded `.jfr` file can be imported into JDK Mission Control (JMC) for fu
 
 ## Visiting the interactive Flamegraph
 
-This starter can generate an interactive Flamegraph from a Flight Recorder recording. You can gain a quick overview by
-visiting the following URL in your browser to see the graph for a recording with ID `1`:
+This starter can generate an interactive Flamegraph from a Flight Recorder recording.
+You can gain a quick overview by visiting the following URL in your browser to see 
+the graph for a recording with ID `1`:
 
 ```
 http://localhost:8080/actuator/flightrecorder/1/flamegraph.html
@@ -74,9 +78,9 @@ and you'll get:
 
 ![Flamegraph](docs/flamegraph.png)
 
-The starter automatically tries to visualize only classes belonging to the running Spring Boot application. It filters
-the stacktrace samples by classes that are in the package or sub-package of the running application instance annotated
-with a
+The starter automatically tries to visualize only classes belonging to the running
+Spring Boot application. It filters the stacktrace samples by classes that are in
+the package or sub-package of the running application instance annotated with a
 `@SpringBootApplication` annotation.
 
 However, you can always get the unfiltered Flamegraph by visiting:
@@ -121,10 +125,12 @@ IMPORTANT: Be aware that the main app should be annotated with @EnableScheduling
 
 ## Trigger Flight Recording based on Micrometer Metrics
 
-This starter allows automatic Flight Recording based on Micrometer Metrics. Using an application configuration file we
-can configure triggers based on SpEL (Spring Expression Language) which are evaluated on a regular basis. Once a trigger
-expression evaluates to true, a Flight Recording in started with a predefined duration and configuration. The most
-common setup would be to trigger a Flight Recording profiling once CPU usage is above a given value.
+This starter allows automatic Flight Recording based on Micrometer Metrics.
+Using an application configuration file we can configure triggers based on 
+SpEL (Spring Expression Language) which are evaluated on a regular basis. Once
+a trigger expression evaluates to true, a Flight Recording in started with
+a predefined duration and configuration. The most common setup would be to
+trigger a Flight Recording profiling once CPU usage is above a given value.
 
 IMPORTANT: Be aware that the main app should be annotated with @EnableScheduling to enable the scheduled processes.
 
@@ -159,3 +165,15 @@ changed through the following property:
 flightrecorder:
   jfr-base-path: /my-path 
 ```
+
+### Custom configuration profile for recordings
+
+By default, the used configuration is "_<<JAVA_HOME>>/lib/jfr/profile.jfc_". A custom configuration can be changed
+through the following property:
+
+```
+flightrecorder:
+  jfr-custom-config: mycustomjfc 
+```
+
+**NOTE**: Just only the file's name (without extension) is required, not whole path.
