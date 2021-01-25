@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.mirkosertic.flightrecorderstarter;
+package de.mirkosertic.flightrecorderstarter.actuator.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -22,15 +22,15 @@ import java.time.LocalDateTime;
 public class FlightRecorderPublicSession {
 
     private long id;
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime startedAt;
     private String status;
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime finishedAt;
     private String description;
 
     public long getId() {
-        return id;
+        return this.id;
     }
 
     public void setId(final long id) {
@@ -38,7 +38,7 @@ public class FlightRecorderPublicSession {
     }
 
     public LocalDateTime getStartedAt() {
-        return startedAt;
+        return this.startedAt;
     }
 
     public void setStartedAt(final LocalDateTime startedAt) {
@@ -46,7 +46,7 @@ public class FlightRecorderPublicSession {
     }
 
     public String getStatus() {
-        return status;
+        return this.status;
     }
 
     public void setStatus(final String status) {
@@ -54,7 +54,7 @@ public class FlightRecorderPublicSession {
     }
 
     public LocalDateTime getFinishedAt() {
-        return finishedAt;
+        return this.finishedAt;
     }
 
     public void setFinishedAt(final LocalDateTime finishedAt) {
@@ -62,7 +62,7 @@ public class FlightRecorderPublicSession {
     }
 
     public String getDescription() {
-        return description;
+        return this.description;
     }
 
     public void setDescription(final String description) {

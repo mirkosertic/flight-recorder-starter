@@ -15,7 +15,7 @@
  */
 package de.mirkosertic.flightrecorderstarter.trigger;
 
-import de.mirkosertic.flightrecorderstarter.StartRecordingCommand;
+import de.mirkosertic.flightrecorderstarter.actuator.model.StartRecordingCommand;
 import de.mirkosertic.flightrecorderstarter.configuration.FlightRecorderAutoConfiguration;
 import de.mirkosertic.flightrecorderstarter.configuration.FlightRecorderDynamicConfiguration;
 import de.mirkosertic.flightrecorderstarter.core.FlightRecorder;

@@ -13,9 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.mirkosertic.flightrecorderstarter;
+package de.mirkosertic.flightrecorderstarter.actuator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.mirkosertic.flightrecorderstarter.actuator.model.FlameGraph;
+import de.mirkosertic.flightrecorderstarter.actuator.model.FlightRecorderPublicSession;
+import de.mirkosertic.flightrecorderstarter.actuator.model.StartRecordingCommand;
 import de.mirkosertic.flightrecorderstarter.core.FlightRecorder;
 import org.springframework.boot.actuate.endpoint.web.annotation.RestControllerEndpoint;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
