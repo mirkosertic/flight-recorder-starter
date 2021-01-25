@@ -102,13 +102,13 @@ public class FlightRecorder {
         }
     }
 
-    public void setRecordingOptions(final long recordingId, final Duration duration, final File filename)
+    public void setRecordingOptions(final long recordingId, final StartRecordingCommand command, final File filename)
             throws IOException {
         synchronized (this.recordings) {
             final RecordingSession recordingSession = this.recordings.get(recordingId);
             if (recordingSession != null) {
                 final Recording recording = recordingSession.getRecording();
-                recording.setDuration(duration);
+                recording.setDuration(Duration.of(command.getDuration(), command.getTimeUnit()));
                 recording.setDestination(filename.toPath());
                 recording.setToDisk(true);
             } else {
@@ -117,9 +117,9 @@ public class FlightRecorder {
         }
     }
 
-    public long startRecordingFor(final Duration duration, final String description) throws IOException {
+    public long startRecordingFor(final StartRecordingCommand command) throws IOException {
         synchronized (this.recordings) {
-            final long recordingId = newRecording(description);
+            final long recordingId = newRecording(command.getDescription());
 
             File basePath = null;
             if (this.configuration.getJfrBasePath() != null) {
@@ -131,7 +131,7 @@ public class FlightRecorder {
             LOGGER.log(Level.INFO, "Recording {0} to temp file {1}", new Object[]{recordingId, tempFile});
 
             tempFile.deleteOnExit();
-            setRecordingOptions(recordingId, duration, tempFile);
+            setRecordingOptions(recordingId, command, tempFile);
             startRecording(recordingId);
 
             return recordingId;

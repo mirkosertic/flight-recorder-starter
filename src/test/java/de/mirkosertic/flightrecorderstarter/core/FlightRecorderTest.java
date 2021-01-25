@@ -10,7 +10,7 @@ import org.springframework.boot.system.SystemProperties;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -46,7 +46,11 @@ class FlightRecorderTest {
         final FlightRecorder flightRecorder = new FlightRecorder(this.mockConfiguration, this.spyRecordings);
 
         //When
-        final long recordingId = flightRecorder.startRecordingFor(Duration.ofMillis(10), "dummyDescription");
+        final StartRecordingCommand command = new StartRecordingCommand();
+        command.setDuration(10L);
+        command.setTimeUnit(ChronoUnit.MILLIS);
+        command.setDescription("dummyDescription");
+        final long recordingId = flightRecorder.startRecordingFor(command);
 
         //Then
         final RecordingSession recordingSession = this.spyRecordings.get(recordingId);
@@ -65,7 +69,11 @@ class FlightRecorderTest {
         final FlightRecorder flightRecorder = new FlightRecorder(this.mockConfiguration, this.spyRecordings);
 
         //When
-        final long recordingId = flightRecorder.startRecordingFor(Duration.ofMillis(10), "dummyDescription");
+        final StartRecordingCommand command = new StartRecordingCommand();
+        command.setDuration(10L);
+        command.setTimeUnit(ChronoUnit.MILLIS);
+        command.setDescription("dummyDescription");
+        final long recordingId = flightRecorder.startRecordingFor(command);
 
         //Then
         final RecordingSession recordingSession = this.spyRecordings.get(recordingId);

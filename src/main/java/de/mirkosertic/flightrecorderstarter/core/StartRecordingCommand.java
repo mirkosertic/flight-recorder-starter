@@ -13,20 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.mirkosertic.flightrecorderstarter.actuator.model;
+package de.mirkosertic.flightrecorderstarter.core;
 
 import java.time.temporal.ChronoUnit;
 
 public class StartRecordingCommand {
 
-    private long duration;
+    private Long duration;
     private ChronoUnit timeUnit;
+    private String description;
 
-    public long getDuration() {
+    public Long getDuration() {
         return this.duration;
     }
 
-    public void setDuration(final long duration) {
+    public void setDuration(final Long duration) {
         this.duration = duration;
     }
 
@@ -36,5 +37,13 @@ public class StartRecordingCommand {
 
     public void setTimeUnit(final ChronoUnit timeUnit) {
         this.timeUnit = timeUnit;
+    }
+
+    public String getDescription() {
+        return this.description;
+    }
+
+    public void setDescription(final String description) {
+        this.description = description;
     }
 }

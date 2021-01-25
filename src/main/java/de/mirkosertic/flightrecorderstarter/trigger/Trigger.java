@@ -15,7 +15,7 @@
  */
 package de.mirkosertic.flightrecorderstarter.trigger;
 
-import de.mirkosertic.flightrecorderstarter.actuator.model.StartRecordingCommand;
+import de.mirkosertic.flightrecorderstarter.core.StartRecordingCommand;
 
 public class Trigger {
 

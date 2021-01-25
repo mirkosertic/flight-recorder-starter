@@ -18,8 +18,8 @@ package de.mirkosertic.flightrecorderstarter.actuator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.mirkosertic.flightrecorderstarter.actuator.model.FlameGraph;
 import de.mirkosertic.flightrecorderstarter.actuator.model.FlightRecorderPublicSession;
-import de.mirkosertic.flightrecorderstarter.actuator.model.StartRecordingCommand;
 import de.mirkosertic.flightrecorderstarter.core.FlightRecorder;
+import de.mirkosertic.flightrecorderstarter.core.StartRecordingCommand;
 import org.springframework.boot.actuate.endpoint.web.annotation.RestControllerEndpoint;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
@@ -31,7 +31,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
-import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -72,11 +71,14 @@ public class FlightRecorderEndpoint {
 
     @PutMapping("/")
     public ResponseEntity startRecording(@RequestBody final StartRecordingCommand command) {
+        if (command.getDuration() == null || command.getTimeUnit() == null) {
+            return ResponseEntity.badRequest().body("Duration and TimeUnit cannot be null");
+        }
         try {
             LOGGER.log(Level.INFO, "Trying to start recording for {0} {1}",
                     new Object[]{command.getDuration(), command.getTimeUnit()});
             final long recordingId = this.flightRecorder
-                    .startRecordingFor(Duration.of(command.getDuration(), command.getTimeUnit()), "");
+                    .startRecordingFor(command);
             LOGGER.log(Level.INFO, "Created recording with ID {0}", recordingId);
             return ResponseEntity.ok().contentType(MediaType.TEXT_PLAIN).body(Long.toString(recordingId));
         } catch (final Exception e) {
