@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.mirkosertic.flightrecorderstarter;
+package de.mirkosertic.flightrecorderstarter.trigger;
 
+import de.mirkosertic.flightrecorderstarter.StartRecordingCommand;
+import de.mirkosertic.flightrecorderstarter.configuration.FlightRecorderDynamicConfiguration;
 import de.mirkosertic.flightrecorderstarter.core.FlightRecorder;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.expression.BeanFactoryResolver;
@@ -79,7 +81,7 @@ public class TriggerChecker {
         }
     }
 
-    @Scheduled(fixedDelayString = "${flightrecorder.triggerCheckInterval:10000}")
+    @Scheduled(fixedDelayString = "${flightrecorder.triggerCheckInterval}")
     public void check() {
         if (this.dynamicConfiguration.isEnabled()) {
             final Set<TriggerSPEL> triggers = new HashSet<>(this.latestRecordings.keySet());
