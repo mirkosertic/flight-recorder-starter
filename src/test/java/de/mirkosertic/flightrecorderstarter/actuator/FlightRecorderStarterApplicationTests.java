@@ -88,4 +88,22 @@ class FlightRecorderStarterApplicationTests {
         this.mockMvc.perform(get("/actuator/flightrecorder/" + result.getResponse().getContentAsString()))
                 .andExpect(status().isOk());
     }
+
+    @Test
+    void givenDurationIncorrectParam_whenTryToCreateRecording_then400ErrorCodeIsReturned() throws Exception {
+        final MvcResult result = this.mockMvc.perform(put("/actuator/flightrecorder")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"timeUnit\": \"SECONDS\"}"))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+    }
+
+    @Test
+    void givenTimeUnitIncorrectParam_whenTryToCreateRecording_then400ErrorCodeIsReturned() throws Exception {
+        final MvcResult result = this.mockMvc.perform(put("/actuator/flightrecorder")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"duration\": \"5\"}"))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+    }
 }
