@@ -1,92 +1,133 @@
 package de.mirkosertic.flightrecorderstarter.actuator;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.mirkosertic.flightrecorderstarter.core.FlightRecorder;
-import de.mirkosertic.flightrecorderstarter.core.StartRecordingCommand;
 import org.junit.jupiter.api.Test;
-import org.springframework.context.ApplicationContext;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.boot.actuate.autoconfigure.endpoint.EndpointAutoConfiguration;
+import org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointAutoConfiguration;
+import org.springframework.boot.actuate.autoconfigure.web.server.ManagementContextAutoConfiguration;
+import org.springframework.boot.actuate.autoconfigure.web.servlet.ServletManagementContextAutoConfiguration;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
+import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
+import org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConfiguration;
+import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
+import org.springframework.boot.autoconfigure.web.servlet.DispatcherServletAutoConfiguration;
+import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
-import java.time.temporal.ChronoUnit;
-
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrlPattern;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@WebMvcTest(FlightRecorderEndpoint.class)
 class FlightRecorderEndpointTest {
 
-    private final FlightRecorder mockFlightRecorder = mock(FlightRecorder.class);
-    private final ApplicationContext mockAppContext = mock(ApplicationContext.class);
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @MockBean
+    private FlightRecorder mockFlightRecorder;
+
+    @SpringBootConfiguration
+    @ImportAutoConfiguration({JacksonAutoConfiguration.class, HttpMessageConvertersAutoConfiguration.class,
+            EndpointAutoConfiguration.class, WebEndpointAutoConfiguration.class,
+            ServletManagementContextAutoConfiguration.class,
+            PropertyPlaceholderAutoConfiguration.class, WebMvcAutoConfiguration.class,
+            ManagementContextAutoConfiguration.class, DispatcherServletAutoConfiguration.class})
+    static class TestConfiguration {
+
+
+        @Bean
+        Object objectMapper() {
+            return new ObjectMapper();
+        }
+
+        @Bean
+        FlightRecorderEndpoint flightRecorderEndpoint(final FlightRecorder flightRecorder) {
+            return new FlightRecorderEndpoint(flightRecorder);
+        }
+    }
+
 
     @Test
     void givenDurationIncorrectParam_whenTryToCreateRecording_then400ErrorCodeIsReturned() throws Exception {
         //Given
-        final FlightRecorderEndpoint fre = new FlightRecorderEndpoint(this.mockAppContext, this.mockFlightRecorder);
         given(this.mockFlightRecorder.startRecordingFor(any())).willReturn(1L);
-        final StartRecordingCommand command = new StartRecordingCommand();
-        command.setTimeUnit(ChronoUnit.SECONDS);
 
         //When
-        final ResponseEntity response = fre.startRecording(command);
+        final MvcResult result = this.mockMvc.perform(post("/actuator/flightrecorder")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"timeUnit\": \"SECONDS\"}"))
+                .andExpect(status().isBadRequest())
+                .andReturn();
 
         //Then
-        assertThat(response.getStatusCode()).isEqualByComparingTo(HttpStatus.BAD_REQUEST);
         then(this.mockFlightRecorder).should(never()).startRecordingFor(any());
     }
 
     @Test
     void givenTimeUnitIncorrectParam_whenTryToCreateRecording_then400ErrorCodeIsReturned() throws Exception {
         //Given
-        final FlightRecorderEndpoint fre = new FlightRecorderEndpoint(this.mockAppContext, this.mockFlightRecorder);
         given(this.mockFlightRecorder.startRecordingFor(any())).willReturn(1L);
-        final StartRecordingCommand command = new StartRecordingCommand();
-        command.setDuration(10L);
 
         //When
-        final ResponseEntity response = fre.startRecording(command);
+        this.mockMvc.perform(post("/actuator/flightrecorder")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"duration\": \"5\"}"))
+                .andExpect(status().isBadRequest())
+                .andReturn();
 
         //Then
-        assertThat(response.getStatusCode()).isEqualByComparingTo(HttpStatus.BAD_REQUEST);
         then(this.mockFlightRecorder).should(never()).startRecordingFor(any());
     }
 
     @Test
     void givenCorrectParamsAndFailureAtCore_whenTryToCreateRecording_then400ErrorCodeIsReturned() throws Exception {
         //Given
-        final FlightRecorderEndpoint fre = new FlightRecorderEndpoint(this.mockAppContext, this.mockFlightRecorder);
         given(this.mockFlightRecorder.startRecordingFor(any())).willThrow(IllegalArgumentException.class);
 
-        final StartRecordingCommand command = new StartRecordingCommand();
-        command.setDuration(10L);
-
         //When
-        final ResponseEntity response = fre.startRecording(command);
+        final MvcResult result = this.mockMvc.perform(post("/actuator/flightrecorder")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"duration\": \"5\",\"timeUnit\":\"SECONDS\"}"))
+                .andExpect(status().isInternalServerError())
+                .andReturn();
 
         //Then
-        assertThat(response.getStatusCode()).isEqualByComparingTo(HttpStatus.BAD_REQUEST);
-        then(this.mockFlightRecorder).should(never()).startRecordingFor(any());
+        then(this.mockFlightRecorder).should().startRecordingFor(any());
     }
 
     @Test
     void givenCorrectParams_whenTryToCreateRecording_thenRecordingIdIsReturned() throws Exception {
         //Given
-        final FlightRecorderEndpoint fre = new FlightRecorderEndpoint(this.mockAppContext, this.mockFlightRecorder);
-        final StartRecordingCommand command = new StartRecordingCommand();
-        command.setDuration(10L);
-        command.setTimeUnit(ChronoUnit.SECONDS);
-
-        given(this.mockFlightRecorder.startRecordingFor(command)).willReturn(1L);
-
+        given(this.mockFlightRecorder.startRecordingFor(any())).willReturn(1L);
 
         //When
-        final ResponseEntity response = fre.startRecording(command);
+        final MvcResult result = this.mockMvc.perform(post("/actuator/flightrecorder")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"duration\": \"5\",\"timeUnit\":\"SECONDS\"}"))
+                .andExpect(status().isCreated())
+                .andExpect(redirectedUrlPattern("**/actuator/flightrecorder/1"))
+                .andReturn();
 
         //Then
-        assertThat(response.getStatusCode()).isEqualByComparingTo(HttpStatus.OK);
-        assertThat(response.getBody()).isEqualTo("1");
-        then(this.mockFlightRecorder).should().startRecordingFor(command);
+        then(this.mockFlightRecorder).should().startRecordingFor(any());
+
     }
+
+    //TODO include tests for all operations
 }

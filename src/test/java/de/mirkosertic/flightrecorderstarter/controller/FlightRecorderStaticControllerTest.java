@@ -1,9 +1,12 @@
 package de.mirkosertic.flightrecorderstarter.controller;
 
+import de.mirkosertic.flightrecorderstarter.core.FlightRecorder;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -18,12 +21,20 @@ class FlightRecorderStaticControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
+
     @SpringBootConfiguration
     static class ControllerConfiguration {
 
+        @MockBean
+        private ApplicationContext mockAppContext;
+
+        @MockBean
+        private FlightRecorder mockFlightRecorder;
+
+
         @Bean
         FlightRecorderStaticController flightRecorderStaticController() {
-            return new FlightRecorderStaticController();
+            return new FlightRecorderStaticController(this.mockAppContext, this.mockFlightRecorder);
         }
     }
 
@@ -91,6 +102,10 @@ class FlightRecorderStaticControllerTest {
                 .andExpect(header().string(EXPIRES_KEY, EXPIRES_VALUE))
                 .andExpect(content().contentType(TEXT_CSS));
     }
+
+    //TODO include tests for htmls
+
+    //TODO include test for findBootClass method
 
 
 }

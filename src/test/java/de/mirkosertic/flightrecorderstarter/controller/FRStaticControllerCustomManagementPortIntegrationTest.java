@@ -39,7 +39,7 @@ class FRStaticControllerCustomManagementPortIntegrationTest {
 
         //when and then
         final ResponseEntity<Resource> response = this.testRestTemplate
-                .getForEntity(baseUrl + "/customActuator/flightrecorder/static" + D3_V4_MIN_JS, Resource.class);
+                .getForEntity(baseUrl + "/customActuator/flightrecorder/ui" + D3_V4_MIN_JS, Resource.class);
 
         assertThat(response.getStatusCode()).isEqualByComparingTo(HttpStatus.OK);
     }

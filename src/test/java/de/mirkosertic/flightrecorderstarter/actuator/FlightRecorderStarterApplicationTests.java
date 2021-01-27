@@ -28,7 +28,7 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(classes = FlightRecorderStarterApplication.class)
@@ -43,10 +43,10 @@ class FlightRecorderStarterApplicationTests {
 
     @Test
     void getRecordingAndCheckStatus() throws Exception {
-        final MvcResult result = this.mockMvc.perform(put("/actuator/flightrecorder")
+        final MvcResult result = this.mockMvc.perform(post("/actuator/flightrecorder")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"duration\": \"5\",\"timeUnit\":\"SECONDS\"}"))
-                .andExpect(status().isOk())
+                .content("{\"duration\": \"3\",\"timeUnit\":\"SECONDS\"}"))
+                .andExpect(status().isCreated())
                 .andReturn();
 
         Thread.sleep(1_000);
@@ -58,18 +58,18 @@ class FlightRecorderStarterApplicationTests {
 
         assertTrue(sessions.length > 0);
 
-        this.mockMvc.perform(get("/actuator/flightrecorder/static/d3.v4.min.js")).andExpect(status().isOk());
+        this.mockMvc.perform(get("/actuator/flightrecorder/ui/d3.v4.min.js")).andExpect(status().isOk());
     }
 
     @Test
     void getRecordingWhenFinished() throws Exception {
-        final MvcResult result = this.mockMvc.perform(put("/actuator/flightrecorder")
+        final MvcResult result = this.mockMvc.perform(post("/actuator/flightrecorder")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"duration\": \"5\",\"timeUnit\":\"SECONDS\"}"))
-                .andExpect(status().isOk())
+                .content("{\"duration\": \"3\",\"timeUnit\":\"SECONDS\"}"))
+                .andExpect(status().isCreated())
                 .andReturn();
 
-        Thread.sleep(10_000);
+        Thread.sleep(5_000);
 
         this.mockMvc.perform(get("/actuator/flightrecorder/" + result.getResponse().getContentAsString()))
                 .andExpect(status().isOk());
@@ -77,10 +77,10 @@ class FlightRecorderStarterApplicationTests {
 
     @Test
     void getRecordingWhenNotFinished() throws Exception {
-        final MvcResult result = this.mockMvc.perform(put("/actuator/flightrecorder")
+        final MvcResult result = this.mockMvc.perform(post("/actuator/flightrecorder")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"duration\": \"5\",\"timeUnit\":\"SECONDS\"}"))
-                .andExpect(status().isOk())
+                .content("{\"duration\": \"3\",\"timeUnit\":\"SECONDS\"}"))
+                .andExpect(status().isCreated())
                 .andReturn();
 
         Thread.sleep(1_000);
@@ -89,21 +89,5 @@ class FlightRecorderStarterApplicationTests {
                 .andExpect(status().isOk());
     }
 
-    @Test
-    void givenDurationIncorrectParam_whenTryToCreateRecording_then400ErrorCodeIsReturned() throws Exception {
-        final MvcResult result = this.mockMvc.perform(put("/actuator/flightrecorder")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"timeUnit\": \"SECONDS\"}"))
-                .andExpect(status().isBadRequest())
-                .andReturn();
-    }
 
-    @Test
-    void givenTimeUnitIncorrectParam_whenTryToCreateRecording_then400ErrorCodeIsReturned() throws Exception {
-        final MvcResult result = this.mockMvc.perform(put("/actuator/flightrecorder")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"duration\": \"5\"}"))
-                .andExpect(status().isBadRequest())
-                .andReturn();
-    }
 }

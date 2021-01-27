@@ -198,21 +198,37 @@ public class FlightRecorder {
         final List<FlightRecorderPublicSession> result = new ArrayList<>();
         synchronized (this.recordings) {
             for (final RecordingSession session : this.recordings.values()) {
-                final FlightRecorderPublicSession publicSession = new FlightRecorderPublicSession();
-                publicSession.setId(session.getRecording().getId());
-                publicSession.setStatus(session.getRecording().getState().name());
-                publicSession
-                        .setStartedAt(LocalDateTime.ofInstant(session.getRecording().getStartTime(), ZoneId.systemDefault()));
-                if (session.getRecording().getState() == RecordingState.CLOSED
-                        || session.getRecording().getState() == RecordingState.STOPPED) {
-                    publicSession
-                            .setFinishedAt(LocalDateTime.ofInstant(session.getRecording().getStopTime(), ZoneId.systemDefault()));
-                }
-                publicSession.setDescription(session.getDescription());
+                final FlightRecorderPublicSession publicSession = getFlightRecorderPublicSession(session);
                 result.add(publicSession);
             }
         }
         result.sort(Comparator.comparingLong(FlightRecorderPublicSession::getId));
         return result;
+    }
+
+    public FlightRecorderPublicSession getById(final Long recordingId) {
+        synchronized (this.recordings) {
+            final RecordingSession session = this.recordings.get(recordingId);
+            if (session != null) {
+                return getFlightRecorderPublicSession(session);
+            } else {
+                return null;
+            }
+        }
+    }
+
+    FlightRecorderPublicSession getFlightRecorderPublicSession(final RecordingSession session) {
+        final FlightRecorderPublicSession publicSession = new FlightRecorderPublicSession();
+        publicSession.setId(session.getRecording().getId());
+        publicSession.setStatus(session.getRecording().getState().name());
+        publicSession
+                .setStartedAt(LocalDateTime.ofInstant(session.getRecording().getStartTime(), ZoneId.systemDefault()));
+        if (session.getRecording().getState() == RecordingState.CLOSED
+                || session.getRecording().getState() == RecordingState.STOPPED) {
+            publicSession
+                    .setFinishedAt(LocalDateTime.ofInstant(session.getRecording().getStopTime(), ZoneId.systemDefault()));
+        }
+        publicSession.setDescription(session.getDescription());
+        return publicSession;
     }
 }
