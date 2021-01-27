@@ -25,8 +25,8 @@ import java.util.List;
 public class FlightRecorderDynamicConfiguration {
 
     private boolean enabled = true;
-    private long oldRecordingsTTL = 1;
-    private ChronoUnit oldRecordingsTTLTimeUnit = ChronoUnit.HOURS;
+    private long oldRecordingsTTL;
+    private ChronoUnit oldRecordingsTTLTimeUnit;
     private String jfrBasePath;
     private String jfrCustomConfig;
 

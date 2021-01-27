@@ -159,7 +159,7 @@ public class FlightRecorder {
         }
     }
 
-    @Scheduled(fixedDelayString = "${flightrecorder.recordingCleanupInterval:5000}")
+    @Scheduled(fixedDelayString = "${flightrecorder.recordingCleanupInterval}")
     public void cleanupOldRecordings() {
         synchronized (this.recordings) {
             final Instant deadline = Instant.now()
@@ -179,9 +179,32 @@ public class FlightRecorder {
                     deletedRecordings.add(entry.getKey());
                 }
             }
-            deletedRecordings.forEach(this.recordings::remove);
+            deletedRecordings.forEach(this::deleteRecording);
+
+
         }
     }
+
+    public void deleteRecording(final long recordingId) {
+        synchronized (this.recordings) {
+            final RecordingSession recordingSession = this.recordings.remove(recordingId);
+            if (recordingSession != null) {
+                final Recording recording = recordingSession.getRecording();
+                if (recording.getState() == RecordingState.RUNNING) {
+                    recording.stop();
+                    recording.close();
+                } else if (recording.getState() == RecordingState.STOPPED) {
+                    recording.close();
+                }
+
+                recordingSession.getRecording().getDestination().toFile().delete();
+
+            } else {
+                LOGGER.log(Level.WARNING, "No recording with id {0} found", recordingId);
+            }
+        }
+    }
+
 
     public boolean isRecordingStopped(final long recordingId) {
         synchronized (this.recordings) {
@@ -206,7 +229,8 @@ public class FlightRecorder {
                 if (session.getRecording().getState() == RecordingState.CLOSED
                         || session.getRecording().getState() == RecordingState.STOPPED) {
                     publicSession
-                            .setFinishedAt(LocalDateTime.ofInstant(session.getRecording().getStopTime(), ZoneId.systemDefault()));
+                            .setFinishedAt(
+                                    LocalDateTime.ofInstant(session.getRecording().getStopTime(), ZoneId.systemDefault()));
                 }
                 publicSession.setDescription(session.getDescription());
                 result.add(publicSession);
