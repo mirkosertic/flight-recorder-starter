@@ -90,13 +90,39 @@ However, you can always get the unfiltered Flamegraph by visiting:
 http://localhost:8080/actuator/flightrecorder/1/rawflamegraph.html
 ```
 
-## Stopping Flight Recording and discarding data
+## Stopping Flight Recording
 
-The following `cURL` command stops the Flight Recording with ID `1` and discards all data:
+The following `cURL` command stops the Flight Recording with ID `1`.
 
 ```shell
 curl -X DELETE http://localhost:8080/actuator/flightrecorder/1
 ```
+
+Later, this recording might be deleted in memory and physically by the scheduler process described below.
+
+### Auto-deletion process
+
+There is a process to delete automatically the recording files (whose status are STOPPED or CLOSED) periodically
+according the following property
+
+```
+flightrecorder.recording-cleanup-interval=5000
+```
+
+with default value set on 5000ms. The base unit is MILLISECONDS. Take into account that the deletion is permanently.
+
+The watermark used to annotate a recording as "removable" is the start time, The threshold is configured via the
+properties below:
+
+```
+flightrecorder.old-recordings-TTL=1
+flightrecorder.old-recordings-TTL-time-unit=Hours  # java.time.temporal.ChronoUnit available values
+```
+
+A file will be removed when the status are STOPPED or CLOSED, and the start time is before than now minus threshold
+configured.
+
+IMPORTANT: Be aware that the main app should be annotated with @EnableScheduling to enable the scheduled processes.
 
 ## Trigger Flight Recording based on Micrometer Metrics
 
@@ -113,6 +139,8 @@ property:
 ```properties
 flightrecorder.triggerCheckInterval=10000
 ```
+
+IMPORTANT: Be aware that the main app should be annotated with @EnableScheduling to enable the scheduled processes.
 
 Here is a sample configuration file in YAML syntax:
 
