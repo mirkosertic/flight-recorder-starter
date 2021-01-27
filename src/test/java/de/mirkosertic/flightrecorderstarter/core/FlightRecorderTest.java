@@ -1,7 +1,7 @@
 package de.mirkosertic.flightrecorderstarter.core;
 
 
-import de.mirkosertic.flightrecorderstarter.FlightRecorderDynamicConfiguration;
+import de.mirkosertic.flightrecorderstarter.configuration.FlightRecorderDynamicConfiguration;
 import jdk.jfr.Configuration;
 import jdk.jfr.Recording;
 import jdk.jfr.RecordingState;

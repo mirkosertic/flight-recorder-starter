@@ -16,17 +16,18 @@ for further analysis.
 
 Just add the following dependency to your Spring Boot 2 project:
 
-```
+```xml
+
 <dependency>
-  <groupId>de.mirkosertic</groupId>
-  <artifactId>flight-recorder-starter</artifactId>
-  <version>2.0.1</version>
+    <groupId>de.mirkosertic</groupId>
+    <artifactId>flight-recorder-starter</artifactId>
+    <version>2.0.1</version>
 </dependency>
 ```
 
 and don't forget to add the following configuration:
 
-```
+```yml
 flightrecorder:
   enabled: true  # is this starter active?
 ``` 
@@ -37,7 +38,7 @@ Please note: the minimum Java/JVM runtime version is 11!
 
 The following `cURL` command starts a new Flight Recording and returns the created Flight Recording ID:
 
-```
+``` shell
 curl  -i -X PUT -H "Content-Type: application/json" -d '{"duration": "60","timeUnit":"SECONDS"}' http://localhost:8080/actuator/flightrecorder
 
 HTTP/1.1 200 
@@ -58,7 +59,7 @@ recorded data.
 
 The following `cURL` command stops the Flight Recording with ID `1` and downloads the `.jfr` file:
 
-```
+```shell
 curl --output recording.jfr http://localhost:8080/actuator/flightrecorder/1
 ```
 
@@ -93,7 +94,7 @@ http://localhost:8080/actuator/flightrecorder/1/rawflamegraph.html
 
 The following `cURL` command stops the Flight Recording with ID `1`.
 
-```
+```shell
 curl -X DELETE http://localhost:8080/actuator/flightrecorder/1
 ```
 
@@ -132,18 +133,25 @@ a trigger expression evaluates to true, a Flight Recording in started with
 a predefined duration and configuration. The most common setup would be to
 trigger a Flight Recording profiling once CPU usage is above a given value.
 
+By default, this scheduled process is executed each 10 seconds. The default configuration can be changed thought this
+property:
+
+```properties
+flightrecorder.triggerCheckInterval=10000
+```
+
 IMPORTANT: Be aware that the main app should be annotated with @EnableScheduling to enable the scheduled processes.
 
 Here is a sample configuration file in YAML syntax:
 
-```
+```yml
 flightrecorder:
   enabled: true  # is this starter active?
   recordingCleanupInterval: 5000 # try to cleanup old recordings every 5 seconds
   triggerCheckInterval: 10000 # evaluate trigger expressions every 10 seconds
   trigger:
     - expression: meter('jvm.memory.used').tag('area','nonheap').tag('id','Metaspace').measurement('value') > 100
-      startRecordingCommand: 
+      startRecordingCommand:
         duration: 60
         timeUnit: SECONDS
 ``` 
@@ -152,6 +160,12 @@ The list of all created recordings can be seen as a JSON file using the followin
 
 ```
 http://localhost:8080/actuator/flightrecorder/
+```
+
+By default, this feature is enabled. In case you want to disable it, set the following property to `false`:
+
+```properties
+flightrecorder.trigger-enabled=false
 ```
 
 ## Advanced Configuration
