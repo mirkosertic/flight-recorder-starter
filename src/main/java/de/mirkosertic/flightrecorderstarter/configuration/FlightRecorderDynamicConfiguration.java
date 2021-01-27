@@ -13,15 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.mirkosertic.flightrecorderstarter;
+package de.mirkosertic.flightrecorderstarter.configuration;
 
+import de.mirkosertic.flightrecorderstarter.trigger.Trigger;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
 
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-@Configuration
 @ConfigurationProperties(prefix = "flightrecorder")
 public class FlightRecorderDynamicConfiguration {
 

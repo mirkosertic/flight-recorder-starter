@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.mirkosertic.flightrecorderstarter;
+package de.mirkosertic.flightrecorderstarter.trigger;
+
+import de.mirkosertic.flightrecorderstarter.StartRecordingCommand;
 
 public class Trigger {
 
@@ -21,7 +23,7 @@ public class Trigger {
     private StartRecordingCommand startRecordingCommand;
 
     public String getExpression() {
-        return expression;
+        return this.expression;
     }
 
     public void setExpression(final String expression) {
@@ -29,7 +31,7 @@ public class Trigger {
     }
 
     public StartRecordingCommand getStartRecordingCommand() {
-        return startRecordingCommand;
+        return this.startRecordingCommand;
     }
 
     public void setStartRecordingCommand(final StartRecordingCommand startRecordingCommand) {
