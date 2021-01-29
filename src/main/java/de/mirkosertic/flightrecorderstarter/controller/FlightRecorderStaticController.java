@@ -31,6 +31,7 @@ public class FlightRecorderStaticController {
 
     private final ApplicationContext applicationContext;
     private final FlightRecorder flightRecorder;
+    private final ObjectMapper objectMapper;
 
     static final MediaType TEXT_CSS = new MediaType("text", "css");
     static final MediaType TEXT_JAVASCRIPT = new MediaType("text", "javascript");
@@ -55,9 +56,10 @@ public class FlightRecorderStaticController {
 
     public FlightRecorderStaticController(
             final ApplicationContext applicationContext,
-            final FlightRecorder flightRecorder) {
+            final FlightRecorder flightRecorder, final ObjectMapper objectMapper) {
         this.applicationContext = applicationContext;
         this.flightRecorder = flightRecorder;
+        this.objectMapper = objectMapper;
     }
 
     @GetMapping(D3_V4_MIN_JS)
@@ -122,16 +124,13 @@ public class FlightRecorderStaticController {
 
     @GetMapping(RECORDING_ID + DATA_JSON)
     public ResponseEntity downloadRecordingJson(@PathVariable final long recordingId) {
-
         LOGGER.log(Level.INFO, "Closing recording with ID {0} and downloading file", recordingId);
-        final File file = this.flightRecorder.stopRecording(recordingId);
-
-        if (file == null) {
-            return ResponseEntity.notFound().build();
-        }
-        
-        final ObjectMapper mapper = new ObjectMapper();
         try {
+            final File file = this.flightRecorder.stopRecording(recordingId);
+
+            if (file == null) {
+                return ResponseEntity.notFound().build();
+            }
 
             final String bootClass = findBootClass(this.applicationContext);
             final FlameGraph graph;
@@ -142,7 +141,7 @@ public class FlightRecorderStaticController {
                 final String basePackage = bootClass.substring(0, p + 1);
                 graph = FlameGraph.from(file, new FlameGraph.PackageNamePrefixFrameFilter(basePackage));
             }
-            final String jsonData = mapper.writeValueAsString(graph.getRoot());
+            final String jsonData = this.objectMapper.writeValueAsString(graph.getRoot());
             return ResponseEntity.ok()
                     .headers(createHttpHeaders())
                     .contentType(MediaType.APPLICATION_JSON)
@@ -157,18 +156,17 @@ public class FlightRecorderStaticController {
 
     @GetMapping(RECORDING_ID + RAWDATA_JSON)
     public ResponseEntity downloadRecordingRawJson(@PathVariable final long recordingId) {
-
         LOGGER.log(Level.INFO, "Closing recording with ID {0} and downloading file", recordingId);
-        final File file = this.flightRecorder.stopRecording(recordingId);
-
-        if (file == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        final ObjectMapper mapper = new ObjectMapper();
         try {
+
+            final File file = this.flightRecorder.stopRecording(recordingId);
+
+            if (file == null) {
+                return ResponseEntity.notFound().build();
+            }
+
             final FlameGraph graph = FlameGraph.from(file);
-            final String jsonData = mapper.writeValueAsString(graph.getRoot());
+            final String jsonData = this.objectMapper.writeValueAsString(graph.getRoot());
             return ResponseEntity.ok()
                     .headers(createHttpHeaders())
                     .contentType(MediaType.APPLICATION_JSON)

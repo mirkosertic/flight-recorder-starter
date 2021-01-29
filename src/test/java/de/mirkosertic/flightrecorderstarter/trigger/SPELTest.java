@@ -15,7 +15,7 @@
  */
 package de.mirkosertic.flightrecorderstarter.trigger;
 
-import de.mirkosertic.flightrecorderstarter.fixtures.FlightRecorderStarterApplication;
+import de.mirkosertic.flightrecorderstarter.FlightRecorderStarterApplication;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.BeanFactory;
