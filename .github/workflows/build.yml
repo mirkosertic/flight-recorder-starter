@@ -1,26 +1,23 @@
 name: Build Workflow
 on:
   push:
-    branches:
-      - master
+    branches: [ master ]
 jobs:
   build:
+    environment: ci
     runs-on: 'ubuntu-latest'
-    strategy:
-      matrix:
-        java: [11,12,13,14]
     steps:
       - uses: actions/checkout@v1
       - uses: joschi/setup-jdk@v1
         env:
           ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
         with:
-          java-version: ${{ matrix.java }}
-
-      - uses: actions/cache@v1
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-      - run: ./mvnw verify
+          java-version: 11
+      - run: |
+          cat <(echo -e "${{ secrets.OSSRH_GPG_SECRET_KEY }}") | gpg --batch --import
+          gpg --list-secret-keys --keyid-format LONG
+      - run: mvn --no-transfer-progress --batch-mode --settings .mvn/settings.xml clean javadoc:jar deploy -P notest -P signed
+        env:
+          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+          GPG_KEY_PASSPHRASE: ${{ secrets.GPG_KEY_PASSPHRASE }}
