@@ -3,6 +3,9 @@ package de.mirkosertic.flightrecorderstarter.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.mirkosertic.flightrecorderstarter.FlightRecorderStarterApplication;
 import de.mirkosertic.flightrecorderstarter.core.FlightRecorder;
+import org.apache.tomcat.util.file.Matcher;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -23,7 +26,9 @@ import java.util.Map;
 
 import static de.mirkosertic.flightrecorderstarter.controller.FlightRecorderStaticController.*;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.not;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.http.MediaType.TEXT_HTML;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -41,8 +46,10 @@ class FlightRecorderStaticControllerTest {
     private FlightRecorder flightRecorder;
 
     @Autowired
-    @Qualifier("mockAppContext")
-    private ApplicationContext mockAppContext;
+    private ApplicationContext applicationContext;
+
+    @Autowired
+    private FlightRecorderStaticController flightRecorderStaticController;
 
     @SpringBootConfiguration
     static class ControllerConfiguration {
@@ -50,27 +57,21 @@ class FlightRecorderStaticControllerTest {
         @MockBean
         private FlightRecorder mockFlightRecorder;
 
-//        @MockBean
-//        @Qualifier("mockAppContext")
-//        private ApplicationContext mockAppContext;
+        @MockBean
+        @Qualifier("mockAppContext")
+        private ApplicationContext mockAppContext;
 
 
         @Bean
-        FlightRecorderStaticController flightRecorderStaticController() {
-            return new FlightRecorderStaticController(mockAppContext(), this.mockFlightRecorder, objectMapper());
+        FlightRecorderStaticController flightRecorderStaticControllerflightRecorderStaticController() {
+            return new FlightRecorderStaticController(this.mockAppContext, this.mockFlightRecorder, objectMapper());
         }
 
         @Bean
         ObjectMapper objectMapper() {
             return new ObjectMapper();
         }
-
-        @Bean
-        ApplicationContext mockAppContext() {
-            return new GenericApplicationContext();
-        }
     }
-
 
     @Test
     void givenStaticFiles_whenD3V4MinJSIsRequired_thenFileIsReturned() throws Exception {
@@ -142,7 +143,7 @@ class FlightRecorderStaticControllerTest {
         //given empty
 
         //when and then
-        this.mockMvc.perform(get("/testStaticUrl" + FLAMEGRAPH_HTML))
+        this.mockMvc.perform(get("/testStaticUrl" + "/1" + FLAMEGRAPH_HTML))
                 .andExpect(status().isOk())
                 .andExpect(header().string(CACHE_CONTROL_KEY, CACHE_CONTROL_VALUE))
                 .andExpect(header().string(PRAGMA_KEY, PRAGMA_VALUE))
@@ -156,7 +157,7 @@ class FlightRecorderStaticControllerTest {
         //given empty
 
         //when and then
-        this.mockMvc.perform(get("/testStaticUrl" + RAM_FLAMEGRAPH_HTML))
+        this.mockMvc.perform(get("/testStaticUrl" + "/1" + RAM_FLAMEGRAPH_HTML))
                 .andExpect(status().isOk())
                 .andExpect(header().string(CACHE_CONTROL_KEY, CACHE_CONTROL_VALUE))
                 .andExpect(header().string(PRAGMA_KEY, PRAGMA_VALUE))
@@ -165,11 +166,10 @@ class FlightRecorderStaticControllerTest {
                 .andExpect(content().string(containsString("rawdata.json")));
     }
 
-
     @Test
     void givenNoExistingRecording_whenTryToDownloadDataJson_thenNotFoundIsReturned() throws Exception {
         //given empty
-        given(this.flightRecorder.stopRecording(any())).willReturn(null);
+        given(this.flightRecorder.stopRecording(anyLong())).willReturn(null);
 
         //when and then
         this.mockMvc.perform(get("/testStaticUrl" + "/1" + DATA_JSON))
@@ -180,32 +180,121 @@ class FlightRecorderStaticControllerTest {
     @Test
     void givenInternalErrorInService_whenTryToDownloadDataJson_thenInternalServerErrorIsReturned() throws Exception {
         //given empty
-        given(this.flightRecorder.stopRecording(any())).willThrow(IllegalArgumentException.class);
+        given(this.flightRecorder.stopRecording(anyLong())).willThrow(IllegalArgumentException.class);
 
         //when and then
         this.mockMvc.perform(get("/testStaticUrl" + "/1" + DATA_JSON))
                 .andExpect(status().isInternalServerError());
     }
 
-
     @Test
     void givenExistingRecording_whenTryToDownloadDataJson_thenJSONInfoIsReturned() throws Exception {
-        //given empty
+        //given
         final Map<String, Object> mockMap = new HashMap();
         mockMap.put("beanName", new FlightRecorderStarterApplication());
 
-        given(this.mockAppContext.getBeansWithAnnotation(SpringBootApplication.class)).willReturn(mockMap);
-        given(this.flightRecorder.stopRecording(any())).willReturn(new File(getClass().getResource("/recording.jfr").toURI()));
+        ApplicationContext mockAppContext = this.applicationContext.getBean(ApplicationContext.class);
 
-        //TODO pendiente modificar contexto de spring para inyectar beans
-        
+        given(mockAppContext.getBeansWithAnnotation(SpringBootApplication.class)).willReturn(mockMap);
+        given(this.flightRecorder.stopRecording(anyLong())).willReturn(new File(getClass().getResource("/recording.jfr").toURI()));
+
         //when and then
+
         this.mockMvc.perform(get("/testStaticUrl" + "/1" + DATA_JSON))
-                .andExpect(status().isOk()).andDo(r -> System.out.println(r.getResponse().getContentAsString()));
+                .andExpect(status().isOk()).andExpect(content().string(containsString("de.mirkosertic.flightrecorderstarter.FlightRecorderEndpoint.startRecording")))
+                .andExpect(content().string(not(containsString("org.apache.tomcat.util.net.NioBlockingSelector$BlockPoller.run"))));
     }
 
+    @Test
+    void givenExistingRecordingAndNotAnnotatedSpringBootApplication_whenTryToDownloadDataJson_thenJSONInfoIsReturned() throws Exception {
+        //given
+        ApplicationContext mockAppContext = this.applicationContext.getBean(ApplicationContext.class);
 
-    //TODO include test for findBootClass method
+        given(mockAppContext.getBeansWithAnnotation(SpringBootApplication.class)).willReturn(new HashMap<>());
+        given(this.flightRecorder.stopRecording(anyLong())).willReturn(new File(getClass().getResource("/recording.jfr").toURI()));
+
+        //when and then
+        this.mockMvc.perform(get("/testStaticUrl" + "/1" + DATA_JSON))
+                .andExpect(status().isOk()).andExpect(content().string(containsString("org.apache.tomcat.util.net.NioBlockingSelector$BlockPoller.run")));
+    }
+
+    @Test
+    void givenNonExistingRecording_whenTryToDownloadDataJson_thenNotFoundResponseIsReturned() throws Exception {
+        //given
+        given(this.flightRecorder.stopRecording(anyLong())).willReturn(null);
+
+        //when and then
+        this.mockMvc.perform(get("/testStaticUrl" + "/1" + DATA_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void givenExistingRecording_whenTryToDownloadRawJson_thenJSONInfoIsReturned() throws Exception {
+        //given
+        given(this.flightRecorder.stopRecording(anyLong())).willReturn(new File(getClass().getResource("/recording.jfr").toURI()));
+
+        //when and then
+
+        this.mockMvc.perform(get("/testStaticUrl" + "/1" + RAWDATA_JSON))
+                .andExpect(status().isOk()).andExpect(content().string(containsString("org.apache.tomcat.util.net.NioBlockingSelector$BlockPoller.run")));
+    }
+
+    @Test
+    void givenNonExistingRecording_whenTryToDownloadRawJson_thenNotFoundIsReturned() throws Exception {
+        //given
+        given(this.flightRecorder.stopRecording(anyLong())).willReturn(null);
+
+        //when and then
+
+        this.mockMvc.perform(get("/testStaticUrl" + "/1" + RAWDATA_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void givenInternalErrorInService_whenTryToDownloadRawJson_thenInternalServerErrorIsReturned() throws Exception {
+        //given empty
+        given(this.flightRecorder.stopRecording(anyLong())).willThrow(IllegalArgumentException.class);
+
+        //when and then
+        this.mockMvc.perform(get("/testStaticUrl" + "/1" + RAWDATA_JSON))
+                .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    void givenApplicationContextWithSpringBootApplicationBean_whenTryToFindBootClass_thenSpringBootClassIsReturned() throws Exception{
+        //given
+        final Map<String, Object> mockMap = new HashMap();
+        mockMap.put("beanName", new FlightRecorderStarterApplication());
+
+        ApplicationContext mockAppContext = this.applicationContext.getBean(ApplicationContext.class);
+
+        given(mockAppContext.getBeansWithAnnotation(SpringBootApplication.class)).willReturn(mockMap);
+
+        Assertions.assertEquals("de.mirkosertic.flightrecorderstarter.FlightRecorderStarterApplication",
+                this.flightRecorderStaticController.findBootClass(mockAppContext));
+    }
+
+    @Test
+    void givenApplicationContextWithoutSpringBootApplicationBean_whenTryToFindBootClass_thenNullIsReturned() throws Exception{
+        Assertions.assertNull(this.flightRecorderStaticController.findBootClass(this.applicationContext));
+    }
+
+    @Test
+    void givenApplicationContextWithSpringBootApplicationBeanInParent_whenTryToFindBootClass_thenSpringBootClassIsReturned() throws Exception{
+        //given
+        final Map<String, Object> mockMap = new HashMap();
+        mockMap.put("beanName", new FlightRecorderStarterApplication());
+
+        ApplicationContext mockAppContext = this.applicationContext.getBean(ApplicationContext.class);
+        ApplicationContext mockAppContextParent = this.applicationContext.getBean(ApplicationContext.class);
+
+        given(mockAppContext.getBeansWithAnnotation(SpringBootApplication.class)).willReturn(new HashMap<>());
+        given(mockAppContextParent.getBeansWithAnnotation(SpringBootApplication.class)).willReturn(mockMap);
+        given(mockAppContext.getParent()).willReturn(mockAppContextParent);
+
+        Assertions.assertEquals("de.mirkosertic.flightrecorderstarter.FlightRecorderStarterApplication",
+                this.flightRecorderStaticController.findBootClass(mockAppContext));
+    }
 
 
 }
