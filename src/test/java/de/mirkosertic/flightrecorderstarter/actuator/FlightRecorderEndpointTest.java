@@ -1,6 +1,7 @@
 package de.mirkosertic.flightrecorderstarter.actuator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.mirkosertic.flightrecorderstarter.actuator.model.FlightRecorderPublicSession;
 import de.mirkosertic.flightrecorderstarter.core.FlightRecorder;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,13 +23,19 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import static org.mockito.ArgumentMatchers.any;
+import java.io.File;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.hamcrest.Matchers.containsString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.never;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrlPattern;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(FlightRecorderEndpoint.class)
 class FlightRecorderEndpointTest {
@@ -96,7 +103,7 @@ class FlightRecorderEndpointTest {
     }
 
     @Test
-    void givenCorrectParamsAndFailureAtCore_whenTryToCreateRecording_then400ErrorCodeIsReturned() throws Exception {
+    void givenCorrectParamsAndFailureAtCore_whenTryToCreateRecording_then500ErrorCodeIsReturned() throws Exception {
         //Given
         given(this.mockFlightRecorder.startRecordingFor(any())).willThrow(IllegalArgumentException.class);
 
@@ -128,6 +135,156 @@ class FlightRecorderEndpointTest {
         then(this.mockFlightRecorder).should().startRecordingFor(any());
 
     }
+    
+    @Test
+    void givenCorrectRequest_whenTryToRetrieveAllRecordings_thenAllRecordingsAreReturned() throws Exception{
+        //given two flightRecorderPublicSession
+        FlightRecorderPublicSession flightRecorderPublicSession1 = new FlightRecorderPublicSession();
+        flightRecorderPublicSession1.setId(1L);
+        flightRecorderPublicSession1.setStartedAt(LocalDateTime.now());
+        flightRecorderPublicSession1.setStatus("status");
+        flightRecorderPublicSession1.setFinishedAt(LocalDateTime.now());
+        flightRecorderPublicSession1.setDescription("description");
 
-    //TODO include tests for all operations
+        FlightRecorderPublicSession flightRecorderPublicSession2 = new FlightRecorderPublicSession();
+        flightRecorderPublicSession2.setId(2L);
+        flightRecorderPublicSession2.setStartedAt(LocalDateTime.now());
+        flightRecorderPublicSession2.setStatus("status");
+        flightRecorderPublicSession2.setFinishedAt(LocalDateTime.now());
+        flightRecorderPublicSession2.setDescription("description");
+
+        List<FlightRecorderPublicSession> flightRecorderPublicSessions = Arrays.asList(flightRecorderPublicSession1,flightRecorderPublicSession2);
+
+        given(this.mockFlightRecorder.sessions()).willReturn(flightRecorderPublicSessions);
+
+        //when
+        final MvcResult result = this.mockMvc.perform(get("/actuator/flightrecorder"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().string(containsString("\"id\":1")))
+                .andExpect(content().string(containsString("\"id\":2")))
+                .andReturn();
+
+        //then
+        then(this.mockFlightRecorder).should().sessions();
+    }
+
+    @Test
+    public void givenRequest_whenTryToRetrieveAllRecordings_thenInternalServerErrorReturned() throws Exception{
+        //given
+        given(this.mockFlightRecorder.sessions()).willThrow(IllegalArgumentException.class);
+
+        //when
+        final MvcResult result = this.mockMvc.perform(get("/actuator/flightrecorder"))
+                .andExpect(status().isInternalServerError())
+                .andReturn();
+
+        //then
+        then(this.mockFlightRecorder).should().sessions();
+    }
+    
+    @Test
+    public void givenCorrectParams_whenTryToStopRecording_thenRecordingIdIsReturned() throws Exception{
+        //given
+        given(this.mockFlightRecorder.stopRecording(anyLong())).willReturn(new File(getClass().getResource("/recording.jfr").toURI()));
+        
+        //when
+        final MvcResult result = this.mockMvc.perform(put("/actuator/flightrecorder/1"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+
+        //then
+        then(this.mockFlightRecorder).should().stopRecording(anyLong());
+    }
+
+    @Test
+    public void givenNoExistingRecordingId_whenTryToStopRecording_thenNotFoundIsReturned() throws Exception{
+        //given
+        given(this.mockFlightRecorder.stopRecording(anyLong())).willReturn(null);
+
+        //when
+        final MvcResult result = this.mockMvc.perform(put("/actuator/flightrecorder/1"))
+                .andExpect(status().isNotFound())
+                .andReturn();
+
+        //then
+        then(this.mockFlightRecorder).should().stopRecording(anyLong());
+    }
+
+    @Test
+    public void givenCorrectParams_whenTryToDeleteARecording_thenNoContentIsReturned() throws Exception{
+        //given
+        given(this.mockFlightRecorder.stopRecording(anyLong())).willReturn(new File(getClass().getResource("/recording.jfr").toURI()));
+
+        //when
+        final MvcResult result = this.mockMvc.perform(delete("/actuator/flightrecorder/1"))
+                .andExpect(status().isNoContent())
+                .andReturn();
+
+        //then
+        then(this.mockFlightRecorder).should().stopRecording(anyLong());
+    }
+
+    @Test
+    public void givenNoExistingRecordId_whenTryToDeleteARecording_thenNotFoundIsReturned() throws Exception{
+        //given
+        given(this.mockFlightRecorder.stopRecording(anyLong())).willReturn(null);
+
+        //when
+        final MvcResult result = this.mockMvc.perform(delete("/actuator/flightrecorder/1"))
+                .andExpect(status().isNotFound())
+                .andReturn();
+
+        //then
+        then(this.mockFlightRecorder).should().stopRecording(anyLong());
+    }
+
+    @Test
+    public void givenCorrectParams_whenTryToDeleteARecording_thenInternalServerErrorIsReturned() throws Exception{
+        //given
+        given(this.mockFlightRecorder.stopRecording(anyLong())).willThrow(IllegalArgumentException.class);
+
+        //when
+        final MvcResult result = this.mockMvc.perform(delete("/actuator/flightrecorder/1"))
+                .andExpect(status().isInternalServerError())
+                .andReturn();
+
+        //then
+        then(this.mockFlightRecorder).should().stopRecording(anyLong());
+    }
+
+    @Test
+    public void givenCorrectParams_whenTryToDownloadRecording_thenRecordingIsReturned() throws Exception{
+        //given
+        given(this.mockFlightRecorder.stopRecording(anyLong())).willReturn(new File(getClass().getResource("/recording.jfr").toURI()));
+
+        //when
+        final MvcResult result = this.mockMvc.perform(get("/actuator/flightrecorder/1"))
+                .andExpect(header().string("Cache-Control", "no-cache, no-store, must-revalidate"))
+                .andExpect(header().string("Pragma", "no-cache"))
+                .andExpect(header().string("Expires","0"))
+                .andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        //then
+        then(this.mockFlightRecorder).should().stopRecording(anyLong());
+    }
+
+    @Test
+    public void givenNoExistingRecordId_whenTryToDownloadRecording_thenNotFoundIsReturned() throws Exception{
+        //given
+        given(this.mockFlightRecorder.stopRecording(anyLong())).willReturn(null);
+
+        //when
+        final MvcResult result = this.mockMvc.perform(get("/actuator/flightrecorder/1"))
+            .andExpect(status().isNotFound())
+            .andReturn();
+
+        //then
+        then(this.mockFlightRecorder).should().stopRecording(anyLong());
+    }
+
+
 }

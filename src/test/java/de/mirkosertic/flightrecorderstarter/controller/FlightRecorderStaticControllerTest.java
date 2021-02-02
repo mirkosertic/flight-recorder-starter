@@ -201,7 +201,8 @@ class FlightRecorderStaticControllerTest {
         //when and then
 
         this.mockMvc.perform(get("/testStaticUrl" + "/1" + DATA_JSON))
-                .andExpect(status().isOk()).andExpect(content().string(containsString("de.mirkosertic.flightrecorderstarter.FlightRecorderEndpoint.startRecording")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("de.mirkosertic.flightrecorderstarter.FlightRecorderEndpoint.startRecording")))
                 .andExpect(content().string(not(containsString("org.apache.tomcat.util.net.NioBlockingSelector$BlockPoller.run"))));
     }
 
@@ -215,7 +216,8 @@ class FlightRecorderStaticControllerTest {
 
         //when and then
         this.mockMvc.perform(get("/testStaticUrl" + "/1" + DATA_JSON))
-                .andExpect(status().isOk()).andExpect(content().string(containsString("org.apache.tomcat.util.net.NioBlockingSelector$BlockPoller.run")));
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("org.apache.tomcat.util.net.NioBlockingSelector$BlockPoller.run")));
     }
 
     @Test
@@ -236,7 +238,8 @@ class FlightRecorderStaticControllerTest {
         //when and then
 
         this.mockMvc.perform(get("/testStaticUrl" + "/1" + RAWDATA_JSON))
-                .andExpect(status().isOk()).andExpect(content().string(containsString("org.apache.tomcat.util.net.NioBlockingSelector$BlockPoller.run")));
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("org.apache.tomcat.util.net.NioBlockingSelector$BlockPoller.run")));
     }
 
     @Test
