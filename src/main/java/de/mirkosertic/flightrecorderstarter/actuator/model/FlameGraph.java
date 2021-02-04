@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.mirkosertic.flightrecorderstarter;
+package de.mirkosertic.flightrecorderstarter.actuator.model;
 
 import jdk.jfr.consumer.RecordedEvent;
 import jdk.jfr.consumer.RecordedFrame;
@@ -22,45 +22,41 @@ import jdk.jfr.consumer.RecordingFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class FlameGraph {
 
     public static class Node {
         private String name;
         private int value;
-        private Map<String, Node> children;
+        private final Map<String, Node> children;
 
         private Node() {
-            children = new HashMap<>();
+            this.children = new HashMap<>();
         }
 
-        public Node(String name) {
+        public Node(final String name) {
             this.name = name;
             this.value = 0;
             this.children = new HashMap<>();
         }
 
-        public Node childByName(String nameOf) {
-            final Node node = children.computeIfAbsent(nameOf, Node::new);
+        public Node childByName(final String nameOf) {
+            final Node node = this.children.computeIfAbsent(nameOf, Node::new);
             node.value++;
             return node;
         }
 
         public String getName() {
-            return name;
+            return this.name;
         }
 
         public int getValue() {
-            return value;
+            return this.value;
         }
 
         public List<Node> getChildren() {
-            final List<Node> nodes = new ArrayList<>(children.values());
+            final List<Node> nodes = new ArrayList<>(this.children.values());
             nodes.sort(Comparator.comparingInt(o -> o.value));
             return nodes;
         }
@@ -76,13 +72,13 @@ public class FlameGraph {
     public static class PackageNamePrefixFrameFilter implements FrameFilter {
         private final String prefix;
 
-        public PackageNamePrefixFrameFilter(String prefix) {
+        public PackageNamePrefixFrameFilter(final String prefix) {
             this.prefix = prefix;
         }
 
         @Override
-        public boolean includes(String className) {
-            return className.startsWith(prefix)
+        public boolean includes(final String className) {
+            return className.startsWith(this.prefix)
                     && !className.contains("$$FastClassBySpringCGLIB$$")
                     && !className.contains("$$EnhancerBySpringCGLIB$$");
         }
@@ -106,7 +102,7 @@ public class FlameGraph {
                     final List<RecordedFrame> frames = stackTrace.getFrames();
 
                     Node currentNode = rootNode;
-                    for (int i=frames.size() - 1; i >= 0; i--) {
+                    for (int i = frames.size() - 1; i >= 0; i--) {
                         final RecordedFrame frame = frames.get(i);
                         if (frame.isJavaFrame() && frameFilter.includes(frame.getMethod().getType().getName())) {
                             currentNode = currentNode.childByName(nameOf(frame));
@@ -123,7 +119,7 @@ public class FlameGraph {
     }
 
     public Node getRoot() {
-        return root;
+        return this.root;
     }
 
     private static String nameOf(final RecordedFrame frame) {

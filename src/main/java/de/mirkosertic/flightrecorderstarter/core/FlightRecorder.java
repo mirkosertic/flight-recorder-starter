@@ -15,8 +15,8 @@
  */
 package de.mirkosertic.flightrecorderstarter.core;
 
+import de.mirkosertic.flightrecorderstarter.actuator.model.FlightRecorderPublicSession;
 import de.mirkosertic.flightrecorderstarter.configuration.FlightRecorderDynamicConfiguration;
-import de.mirkosertic.flightrecorderstarter.FlightRecorderPublicSession;
 import jdk.jfr.Configuration;
 import jdk.jfr.Recording;
 import jdk.jfr.RecordingState;
@@ -50,16 +50,16 @@ public class FlightRecorder {
         this.recordings = recordings;
     }
 
-    public long newRecording(final String description) {
-        final Recording recording = new Recording(getConfigurationSettings(Configuration.getConfigurations()));
+    public long newRecording(final StartRecordingCommand command) {
+        final Recording recording = new Recording(getConfigurationSettings(Configuration.getConfigurations(), command.getCustomSettings()));
         recording.setName("Spring Boot Starter Flight Recording");
         synchronized (this.recordings) {
-            this.recordings.put(recording.getId(), new RecordingSession(recording, description));
+            this.recordings.put(recording.getId(), new RecordingSession(recording, command.getDescription()));
         }
         return recording.getId();
     }
 
-    Map<String, String> getConfigurationSettings(final List<Configuration> configs) {
+    Map<String, String> getConfigurationSettings(final List<Configuration> configs, final Map<String, String> customSettings) {
         final Map<String, String> settings = new HashMap<>();
 
         final String chosenConfiguration = this.configuration.getJfrCustomConfig() != null ? this.configuration.getJfrCustomConfig() : "profile";
@@ -72,14 +72,23 @@ public class FlightRecorder {
             }
         }
 
+        //Override settings with customSettings
+        if (customSettings != null) {
+            settings.putAll(customSettings);
+        }
+
         return settings;
     }
 
-    public void startRecording(final long recordingId) {
+    public void startRecording(final long recordingId, final Duration delayDuration) {
         synchronized (this.recordings) {
             final RecordingSession recordingSession = this.recordings.get(recordingId);
             if (recordingSession != null) {
-                recordingSession.getRecording().start();
+                if (delayDuration == null) {
+                    recordingSession.getRecording().start();
+                } else {
+                    recordingSession.getRecording().scheduleStart(delayDuration);
+                }
             } else {
                 LOGGER.log(Level.WARNING, "No recording with id {0} found", recordingId);
             }
@@ -102,24 +111,30 @@ public class FlightRecorder {
         }
     }
 
-    public void setRecordingOptions(final long recordingId, final Duration duration, final File filename)
+    public void setRecordingOptions(final long recordingId, final StartRecordingCommand command, final File filename)
             throws IOException {
         synchronized (this.recordings) {
             final RecordingSession recordingSession = this.recordings.get(recordingId);
             if (recordingSession != null) {
                 final Recording recording = recordingSession.getRecording();
-                recording.setDuration(duration);
+                recording.setDuration(Duration.of(command.getDuration(), command.getTimeUnit()));
                 recording.setDestination(filename.toPath());
                 recording.setToDisk(true);
+                if (command.getMaxAgeDuration() != null && command.getMaxAgeUnit() != null) {
+                    recording.setMaxAge(Duration.of(command.getMaxAgeDuration(), command.getMaxAgeUnit()));
+                }
+                if (command.getMaxSize() != null) {
+                    recording.setMaxSize(command.getMaxSize());
+                }
             } else {
                 LOGGER.log(Level.WARNING, "No recording with id {0} found", recordingId);
             }
         }
     }
 
-    public long startRecordingFor(final Duration duration, final String description) throws IOException {
+    public long startRecordingFor(final StartRecordingCommand command) throws IOException {
         synchronized (this.recordings) {
-            final long recordingId = newRecording(description);
+            final long recordingId = newRecording(command);
 
             File basePath = null;
             if (this.configuration.getJfrBasePath() != null) {
@@ -131,8 +146,14 @@ public class FlightRecorder {
             LOGGER.log(Level.INFO, "Recording {0} to temp file {1}", new Object[]{recordingId, tempFile});
 
             tempFile.deleteOnExit();
-            setRecordingOptions(recordingId, duration, tempFile);
-            startRecording(recordingId);
+            setRecordingOptions(recordingId, command, tempFile);
+
+            Duration delay = null;
+            if (command.getDelayDuration() != null && command.getDelayUnit() != null) {
+                delay = Duration.of(command.getDelayDuration(), command.getDelayUnit());
+            }
+
+            startRecording(recordingId, delay);
 
             return recordingId;
         }

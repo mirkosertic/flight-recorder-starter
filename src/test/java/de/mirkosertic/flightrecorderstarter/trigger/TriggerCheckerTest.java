@@ -15,10 +15,10 @@
  */
 package de.mirkosertic.flightrecorderstarter.trigger;
 
-import de.mirkosertic.flightrecorderstarter.StartRecordingCommand;
 import de.mirkosertic.flightrecorderstarter.configuration.FlightRecorderAutoConfiguration;
 import de.mirkosertic.flightrecorderstarter.configuration.FlightRecorderDynamicConfiguration;
 import de.mirkosertic.flightrecorderstarter.core.FlightRecorder;
+import de.mirkosertic.flightrecorderstarter.core.StartRecordingCommand;
 import de.mirkosertic.flightrecorderstarter.fixtures.FlightRecorderStarterApplication;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.BeanFactory;
@@ -27,7 +27,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.io.IOException;
-import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
@@ -53,7 +52,7 @@ class TriggerCheckerTest {
         configuration.setEnabled(true);
 
         final StartRecordingCommand startRecordingCommand = new StartRecordingCommand();
-        startRecordingCommand.setDuration(10);
+        startRecordingCommand.setDuration(10L);
         startRecordingCommand.setTimeUnit(ChronoUnit.SECONDS);
 
         final Trigger trigger = new Trigger();
@@ -66,7 +65,10 @@ class TriggerCheckerTest {
         final TriggerChecker checker = new TriggerChecker(this.beanFactory, configuration, this.flightRecorder,
                 this.micrometerAdapter);
 
-        when(this.flightRecorder.startRecordingFor(eq(Duration.of(10L, ChronoUnit.SECONDS)), eq(trigger.getExpression())))
+        when(this.flightRecorder.startRecordingFor(argThat(arg ->
+                Long.valueOf(10L).equals(arg.getDuration())
+                        && ChronoUnit.SECONDS.equals(arg.getTimeUnit())
+                        && trigger.getExpression().equals(arg.getDescription()))))
                 .thenReturn(20L);
         when(this.flightRecorder.isRecordingStopped(eq(20L))).thenReturn(false);
         checker.check();
@@ -74,7 +76,10 @@ class TriggerCheckerTest {
 
         verify(this.flightRecorder, times(1)).isRecordingStopped(eq(20L));
         verify(this.flightRecorder, times(1))
-                .startRecordingFor(eq(Duration.of(10, ChronoUnit.SECONDS)), eq(trigger.getExpression()));
+                .startRecordingFor(argThat(arg ->
+                        Long.valueOf(10L).equals(arg.getDuration())
+                                && ChronoUnit.SECONDS.equals(arg.getTimeUnit())
+                                && trigger.getExpression().equals(arg.getDescription())));
     }
 
     @Test
@@ -84,7 +89,7 @@ class TriggerCheckerTest {
         configuration.setEnabled(true);
 
         final StartRecordingCommand startRecordingCommand = new StartRecordingCommand();
-        startRecordingCommand.setDuration(10);
+        startRecordingCommand.setDuration(10L);
         startRecordingCommand.setTimeUnit(ChronoUnit.SECONDS);
 
         final Trigger trigger = new Trigger();
@@ -97,7 +102,10 @@ class TriggerCheckerTest {
         final TriggerChecker checker = new TriggerChecker(this.beanFactory, configuration, this.flightRecorder,
                 this.micrometerAdapter);
 
-        when(this.flightRecorder.startRecordingFor(eq(Duration.of(10L, ChronoUnit.SECONDS)), eq(trigger.getExpression())))
+        when(this.flightRecorder.startRecordingFor(argThat(arg ->
+                Long.valueOf(10L).equals(arg.getDuration())
+                        && ChronoUnit.SECONDS.equals(arg.getTimeUnit())
+                        && trigger.getExpression().equals(arg.getDescription()))))
                 .thenReturn(20L);
         when(this.flightRecorder.isRecordingStopped(eq(20L))).thenReturn(true);
         checker.check();
@@ -105,7 +113,10 @@ class TriggerCheckerTest {
 
         verify(this.flightRecorder, times(1)).isRecordingStopped(eq(20L));
         verify(this.flightRecorder, times(2))
-                .startRecordingFor(eq(Duration.of(10, ChronoUnit.SECONDS)), eq(trigger.getExpression()));
+                .startRecordingFor(argThat(arg ->
+                        Long.valueOf(10L).equals(arg.getDuration())
+                                && ChronoUnit.SECONDS.equals(arg.getTimeUnit())
+                                && trigger.getExpression().equals(arg.getDescription())));
     }
 
     @Test
@@ -115,7 +126,7 @@ class TriggerCheckerTest {
         configuration.setEnabled(false);
 
         final StartRecordingCommand startRecordingCommand = new StartRecordingCommand();
-        startRecordingCommand.setDuration(10);
+        startRecordingCommand.setDuration(10L);
         startRecordingCommand.setTimeUnit(ChronoUnit.SECONDS);
 
         final Trigger trigger = new Trigger();
@@ -141,7 +152,7 @@ class TriggerCheckerTest {
         configuration.setEnabled(true);
 
         final StartRecordingCommand startRecordingCommand = new StartRecordingCommand();
-        startRecordingCommand.setDuration(10);
+        startRecordingCommand.setDuration(10L);
         startRecordingCommand.setTimeUnit(ChronoUnit.SECONDS);
 
         final TriggerChecker checker = new TriggerChecker(this.beanFactory, configuration, this.flightRecorder,

@@ -15,9 +15,9 @@
  */
 package de.mirkosertic.flightrecorderstarter.trigger;
 
-import de.mirkosertic.flightrecorderstarter.StartRecordingCommand;
 import de.mirkosertic.flightrecorderstarter.configuration.FlightRecorderDynamicConfiguration;
 import de.mirkosertic.flightrecorderstarter.core.FlightRecorder;
+import de.mirkosertic.flightrecorderstarter.core.StartRecordingCommand;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.expression.BeanFactoryResolver;
 import org.springframework.expression.Expression;
@@ -28,7 +28,6 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.scheduling.annotation.Scheduled;
 
-import java.time.Duration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -97,9 +96,10 @@ public class TriggerChecker {
                             }
                             final StartRecordingCommand startRecordingCommand = triggerSPEL.trigger
                                     .getStartRecordingCommand();
+
+                            startRecordingCommand.setDescription(triggerSPEL.trigger.getExpression());
                             final long newRecordingId = this.flightRecorder.startRecordingFor(
-                                    Duration.of(startRecordingCommand.getDuration(), startRecordingCommand.getTimeUnit()),
-                                    triggerSPEL.trigger.getExpression());
+                                    startRecordingCommand);
 
                             this.latestRecordings.put(triggerSPEL, newRecordingId);
                         }
