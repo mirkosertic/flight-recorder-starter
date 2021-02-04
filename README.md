@@ -37,7 +37,7 @@ Please note: the minimum Java/JVM runtime version is 11!
 The following `cURL` command starts a new Flight Recording and returns the created Flight Recording ID:
 
 ``` shell
-curl  -i -X PUT -H "Content-Type: application/json" -d '{"duration": "60","timeUnit":"SECONDS"}' http://localhost:8080/actuator/flightrecorder
+curl  -i -X POST -H "Content-Type: application/json" -d '{"duration": "60","timeUnit":"SECONDS"}' http://localhost:8080/actuator/flightrecorder/
 
 HTTP/1.1 200 
 Content-Type: text/plain
@@ -106,7 +106,7 @@ This starter can generate an interactive Flamegraph from a Flight Recorder recor
 visiting the following URL in your browser to see the graph for a recording with ID `1`:
 
 ```
-http://localhost:8080/actuator/flightrecorder/1/flamegraph.html
+http://localhost:8080/actuator/flightrecorder/ui/1/flamegraph.html
 ```
 
 and you'll get:
@@ -121,7 +121,7 @@ with a
 However, you can always get the unfiltered Flamegraph by visiting:
 
 ```
-http://localhost:8080/actuator/flightrecorder/1/rawflamegraph.html
+http://localhost:8080/actuator/flightrecorder/ui/1/rawflamegraph.html
 ```
 
 ## Stopping Flight Recording and discarding data
@@ -129,8 +129,10 @@ http://localhost:8080/actuator/flightrecorder/1/rawflamegraph.html
 The following `cURL` command stops the Flight Recording with ID `1` and discards all data:
 
 ```shell
-curl -X DELETE http://localhost:8080/actuator/flightrecorder/1
+curl -X PUT http://localhost:8080/actuator/flightrecorder/1
 ```
+
+//TODO include delete endpoint documentation
 
 ## Trigger Flight Recording based on Micrometer Metrics
 
