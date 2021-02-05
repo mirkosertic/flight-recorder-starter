@@ -92,8 +92,7 @@ public class FlightRecorderEndpoint {
 
             final File file = this.flightRecorder.stopRecording(recordingId);
             if (file != null) {
-                //TODO invoke deleteMethod
-                //this.flightRecorder.deleteRecording(recordingId);
+                this.flightRecorder.deleteRecording(recordingId);
 
                 return ResponseEntity.noContent().build();
             }

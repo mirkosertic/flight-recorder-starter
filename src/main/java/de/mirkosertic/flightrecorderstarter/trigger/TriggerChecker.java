@@ -73,14 +73,14 @@ public class TriggerChecker {
 
         if (dynamicConfiguration.getTrigger() != null) {
             for (final Trigger trigger : dynamicConfiguration.getTrigger()) {
-                LOGGER.log(Level.INFO, "Registering trigger {0}", trigger.getExpression());
+                LOGGER.log(Level.INFO, "Registering trigger {0}" , trigger.getExpression());
                 final Expression expression = parser.parseExpression(trigger.getExpression());
                 this.latestRecordings.put(new TriggerSPEL(trigger, expression), UNKNOWN_RECORDING_ID);
             }
         }
     }
 
-    @Scheduled(fixedDelayString = "${flightrecorder.triggerCheckInterval}")
+    @Scheduled(fixedDelayString = "${flightrecorder.trigger-check-interval}")
     public void check() {
         if (this.dynamicConfiguration.isEnabled()) {
             final Set<TriggerSPEL> triggers = new HashSet<>(this.latestRecordings.keySet());
@@ -104,7 +104,7 @@ public class TriggerChecker {
                             this.latestRecordings.put(triggerSPEL, newRecordingId);
                         }
                     } catch (final Exception e) {
-                        LOGGER.log(Level.WARNING, "Error evaluating trigger {0} : {1}",
+                        LOGGER.log(Level.WARNING, "Error evaluating trigger {0} : {1}" ,
                                 new Object[]{triggerSPEL.trigger.getExpression(), e.getMessage()});
                     }
                 }

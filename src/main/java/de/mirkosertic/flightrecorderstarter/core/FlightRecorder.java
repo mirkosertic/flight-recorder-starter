@@ -65,9 +65,9 @@ public class FlightRecorder {
         final String chosenConfiguration = this.configuration.getJfrCustomConfig() != null ? this.configuration.getJfrCustomConfig() : "profile";
 
         for (final Configuration config : configs) {
-            LOGGER.log(Level.INFO, "Found configuration {0}", config.getName());
+            LOGGER.log(Level.INFO, "Found configuration {0}" , config.getName());
             if (config.getName().contains(chosenConfiguration)) {
-                LOGGER.log(Level.INFO, "Using configuration {0}", config.getName());
+                LOGGER.log(Level.INFO, "Using configuration {0}" , config.getName());
                 settings.putAll(config.getSettings());
             }
         }
@@ -90,7 +90,7 @@ public class FlightRecorder {
                     recordingSession.getRecording().scheduleStart(delayDuration);
                 }
             } else {
-                LOGGER.log(Level.WARNING, "No recording with id {0} found", recordingId);
+                LOGGER.log(Level.WARNING, "No recording with id {0} found" , recordingId);
             }
         }
     }
@@ -105,7 +105,7 @@ public class FlightRecorder {
                 }
                 return recording.getDestination().toFile();
             } else {
-                LOGGER.log(Level.WARNING, "No recording with id {0} found", recordingId);
+                LOGGER.log(Level.WARNING, "No recording with id {0} found" , recordingId);
                 return null;
             }
         }
@@ -127,7 +127,7 @@ public class FlightRecorder {
                     recording.setMaxSize(command.getMaxSize());
                 }
             } else {
-                LOGGER.log(Level.WARNING, "No recording with id {0} found", recordingId);
+                LOGGER.log(Level.WARNING, "No recording with id {0} found" , recordingId);
             }
         }
     }
@@ -141,9 +141,9 @@ public class FlightRecorder {
                 basePath = Path.of(this.configuration.getJfrBasePath()).toFile();
             }
 
-            final File tempFile = File.createTempFile("recording", ".jfr", basePath);
+            final File tempFile = File.createTempFile("recording" , ".jfr" , basePath);
 
-            LOGGER.log(Level.INFO, "Recording {0} to temp file {1}", new Object[]{recordingId, tempFile});
+            LOGGER.log(Level.INFO, "Recording {0} to temp file {1}" , new Object[]{recordingId, tempFile});
 
             tempFile.deleteOnExit();
             setRecordingOptions(recordingId, command, tempFile);
@@ -159,7 +159,7 @@ public class FlightRecorder {
         }
     }
 
-    @Scheduled(fixedDelayString = "${flightrecorder.recordingCleanupInterval}")
+    @Scheduled(fixedDelayString = "${flightrecorder.recording-cleanup-interval}")
     public void cleanupOldRecordings() {
         synchronized (this.recordings) {
             final Instant deadline = Instant.now()
@@ -174,7 +174,7 @@ public class FlightRecorder {
                             recording.close();
                         }
                     } catch (final Exception e) {
-                        LOGGER.log(Level.INFO, "Cannot close recording {0}", new Object[]{recording.getId()});
+                        LOGGER.log(Level.INFO, "Cannot close recording {0}" , new Object[]{recording.getId()});
                     }
                     deletedRecordings.add(entry.getKey());
                 }
@@ -200,7 +200,7 @@ public class FlightRecorder {
                 recordingSession.getRecording().getDestination().toFile().delete();
 
             } else {
-                LOGGER.log(Level.WARNING, "No recording with id {0} found", recordingId);
+                LOGGER.log(Level.WARNING, "No recording with id {0} found" , recordingId);
             }
         }
     }

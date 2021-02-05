@@ -224,8 +224,7 @@ class FlightRecorderEndpointTest {
 
         //then
         then(this.mockFlightRecorder).should().stopRecording(anyLong());
-        //TODO uncomment this
-        //then(this.mockFlightRecorder).should().deleteRecording(anyLong());
+        then(this.mockFlightRecorder).should().deleteRecording(anyLong());
     }
 
     @Test
@@ -240,8 +239,7 @@ class FlightRecorderEndpointTest {
 
         //then
         then(this.mockFlightRecorder).should().stopRecording(anyLong());
-        //TODO uncomment this
-        //then(this.mockFlightRecorder).should(never()).deleteRecording(anyLong());
+        then(this.mockFlightRecorder).should(never()).deleteRecording(anyLong());
 
     }
 
