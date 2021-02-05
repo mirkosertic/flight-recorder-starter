@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.mirkosertic.flightrecorderstarter;
+package de.mirkosertic.flightrecorderstarter.actuator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.mirkosertic.flightrecorderstarter.actuator.model.FlightRecorderPublicSession;
 import de.mirkosertic.flightrecorderstarter.fixtures.FlightRecorderStarterApplication;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,5 +87,23 @@ class FlightRecorderStarterApplicationTests {
 
         this.mockMvc.perform(get("/actuator/flightrecorder/" + result.getResponse().getContentAsString()))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void givenDurationIncorrectParam_whenTryToCreateRecording_then400ErrorCodeIsReturned() throws Exception {
+        final MvcResult result = this.mockMvc.perform(put("/actuator/flightrecorder")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"timeUnit\": \"SECONDS\"}"))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+    }
+
+    @Test
+    void givenTimeUnitIncorrectParam_whenTryToCreateRecording_then400ErrorCodeIsReturned() throws Exception {
+        final MvcResult result = this.mockMvc.perform(put("/actuator/flightrecorder")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"duration\": \"5\"}"))
+                .andExpect(status().isBadRequest())
+                .andReturn();
     }
 }

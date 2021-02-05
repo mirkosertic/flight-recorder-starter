@@ -38,8 +38,190 @@ class FlightRecorderTest {
     }
 
     @BeforeEach
-    void restMocks() {
+    void resetMocks() {
         reset(this.spyRecordings, this.mockConfiguration);
+    }
+
+
+    @Test
+    void givenCommandWithDelayConfigured_whenANewRecordingHasExecuted_ThenTheRecordingIsDelayed()
+            throws IOException {
+        //Given
+        given(this.mockConfiguration.getJfrBasePath()).willReturn(null);
+
+        final FlightRecorder flightRecorder = new FlightRecorder(this.mockConfiguration, this.spyRecordings);
+
+        //When
+        final StartRecordingCommand command = new StartRecordingCommand();
+        command.setDuration(10L);
+        command.setTimeUnit(ChronoUnit.MILLIS);
+        command.setDescription("dummyDescription");
+        command.setDelayDuration(10L);
+        command.setDelayUnit(ChronoUnit.SECONDS);
+        final long recordingId = flightRecorder.startRecordingFor(command);
+
+        //Then
+        final RecordingSession recordingSession = this.spyRecordings.get(recordingId);
+        assertThat(recordingSession).isNotNull();
+        assertThat(recordingSession.getRecording().getState()).isEqualTo(RecordingState.DELAYED);
+    }
+
+    @Test
+    void givenCommandWithDelayDurationNotConfigured_whenANewRecordingHasExecuted_ThenTheRecordingIsNotDelayed()
+            throws IOException {
+        //Given
+        given(this.mockConfiguration.getJfrBasePath()).willReturn(null);
+
+        final FlightRecorder flightRecorder = new FlightRecorder(this.mockConfiguration, this.spyRecordings);
+
+        //When
+        final StartRecordingCommand command = new StartRecordingCommand();
+        command.setDuration(10L);
+        command.setTimeUnit(ChronoUnit.MILLIS);
+        command.setDescription("dummyDescription");
+        command.setDelayUnit(ChronoUnit.SECONDS);
+        final long recordingId = flightRecorder.startRecordingFor(command);
+
+        //Then
+        final RecordingSession recordingSession = this.spyRecordings.get(recordingId);
+        assertThat(recordingSession).isNotNull();
+        assertThat(recordingSession.getRecording().getState()).isNotEqualTo(RecordingState.DELAYED);
+    }
+
+    @Test
+    void givenCommandWithDelayTimeUnitNotConfigured_whenANewRecordingHasExecuted_ThenTheRecordingIsNotDelayed()
+            throws IOException {
+        //Given
+        given(this.mockConfiguration.getJfrBasePath()).willReturn(null);
+
+        final FlightRecorder flightRecorder = new FlightRecorder(this.mockConfiguration, this.spyRecordings);
+
+        //When
+        final StartRecordingCommand command = new StartRecordingCommand();
+        command.setDuration(10L);
+        command.setTimeUnit(ChronoUnit.MILLIS);
+        command.setDescription("dummyDescription");
+        command.setDelayDuration(10L);
+        final long recordingId = flightRecorder.startRecordingFor(command);
+
+        //Then
+        final RecordingSession recordingSession = this.spyRecordings.get(recordingId);
+        assertThat(recordingSession).isNotNull();
+        assertThat(recordingSession.getRecording().getState()).isNotEqualTo(RecordingState.DELAYED);
+    }
+
+
+    @Test
+    void givenCommandWithMaxAgeConfigured_whenANewRecordingHasExecuted_ThenTheRecordingHasConfiguredThatMaxAge()
+            throws IOException {
+        //Given
+        given(this.mockConfiguration.getJfrBasePath()).willReturn(null);
+
+        final FlightRecorder flightRecorder = new FlightRecorder(this.mockConfiguration, this.spyRecordings);
+
+        //When
+        final StartRecordingCommand command = new StartRecordingCommand();
+        command.setDuration(10L);
+        command.setTimeUnit(ChronoUnit.MILLIS);
+        command.setDescription("dummyDescription");
+        command.setMaxAgeDuration(1L);
+        command.setMaxAgeUnit(ChronoUnit.MILLIS);
+        final long recordingId = flightRecorder.startRecordingFor(command);
+
+        //Then
+        final RecordingSession recordingSession = this.spyRecordings.get(recordingId);
+        assertThat(recordingSession).isNotNull();
+        assertThat(recordingSession.getRecording().getMaxAge()).isEqualTo(Duration.ofMillis(1));
+
+    }
+
+    @Test
+    void givenCommandWithMaxAgeDurationNotConfigured_whenANewRecordingHasExecuted_ThenTheRecordingHasNotConfiguredThatMaxAge()
+            throws IOException {
+        //Given
+        given(this.mockConfiguration.getJfrBasePath()).willReturn(null);
+
+        final FlightRecorder flightRecorder = new FlightRecorder(this.mockConfiguration, this.spyRecordings);
+
+        //When
+        final StartRecordingCommand command = new StartRecordingCommand();
+        command.setDuration(10L);
+        command.setTimeUnit(ChronoUnit.MILLIS);
+        command.setDescription("dummyDescription");
+        command.setMaxAgeUnit(ChronoUnit.MILLIS);
+        final long recordingId = flightRecorder.startRecordingFor(command);
+
+        //Then
+        final RecordingSession recordingSession = this.spyRecordings.get(recordingId);
+        assertThat(recordingSession).isNotNull();
+        assertThat(recordingSession.getRecording().getMaxAge()).isNull();
+    }
+
+    @Test
+    void givenCommandWithMaxAgeTimeUnitNotConfigured_whenANewRecordingHasExecuted_ThenTheRecordingHasNotConfiguredThatMaxAge()
+            throws IOException {
+        //Given
+        given(this.mockConfiguration.getJfrBasePath()).willReturn(null);
+
+        final FlightRecorder flightRecorder = new FlightRecorder(this.mockConfiguration, this.spyRecordings);
+
+        //When
+        final StartRecordingCommand command = new StartRecordingCommand();
+        command.setDuration(10L);
+        command.setTimeUnit(ChronoUnit.MILLIS);
+        command.setDescription("dummyDescription");
+        command.setMaxAgeDuration(1L);
+        final long recordingId = flightRecorder.startRecordingFor(command);
+
+        //Then
+        final RecordingSession recordingSession = this.spyRecordings.get(recordingId);
+        assertThat(recordingSession).isNotNull();
+        assertThat(recordingSession.getRecording().getMaxAge()).isNull();
+    }
+
+
+    @Test
+    void givenCommandWithMaxSizeConfigured_whenANewRecordingHasExecuted_ThenTheRecordingHasConfiguredThatMaxSize()
+            throws IOException {
+        //Given
+        given(this.mockConfiguration.getJfrBasePath()).willReturn(null);
+
+        final FlightRecorder flightRecorder = new FlightRecorder(this.mockConfiguration, this.spyRecordings);
+
+        //When
+        final StartRecordingCommand command = new StartRecordingCommand();
+        command.setDuration(10L);
+        command.setTimeUnit(ChronoUnit.MILLIS);
+        command.setDescription("dummyDescription");
+        command.setMaxSize(100L);
+        final long recordingId = flightRecorder.startRecordingFor(command);
+
+        //Then
+        final RecordingSession recordingSession = this.spyRecordings.get(recordingId);
+        assertThat(recordingSession).isNotNull();
+        assertThat(recordingSession.getRecording().getMaxSize()).isEqualTo(100L);
+
+    }
+
+    @Test
+    void givenCommandWithMaxSizeNotConfigured_whenANewRecordingHasExecuted_ThenTheRecordingHasNotConfiguredThatMaxSize()
+            throws IOException {
+        //Given
+        given(this.mockConfiguration.getJfrBasePath()).willReturn(null);
+
+        final FlightRecorder flightRecorder = new FlightRecorder(this.mockConfiguration, this.spyRecordings);
+
+        //When
+        final StartRecordingCommand command = new StartRecordingCommand();
+        command.setDuration(10L);
+        command.setTimeUnit(ChronoUnit.MILLIS);
+        command.setDescription("dummyDescription");
+        final long recordingId = flightRecorder.startRecordingFor(command);
+
+        //Then
+        final RecordingSession recordingSession = this.spyRecordings.get(recordingId);
+        assertThat(recordingSession).isNotNull();
+        assertThat(recordingSession.getRecording().getMaxSize()).isEqualTo(0L);
     }
 
     @Test
@@ -53,7 +235,11 @@ class FlightRecorderTest {
         final FlightRecorder flightRecorder = new FlightRecorder(this.mockConfiguration, this.spyRecordings);
 
         //When
-        final long recordingId = flightRecorder.startRecordingFor(Duration.ofMillis(10), "dummyDescription");
+        final StartRecordingCommand command = new StartRecordingCommand();
+        command.setDuration(10L);
+        command.setTimeUnit(ChronoUnit.MILLIS);
+        command.setDescription("dummyDescription");
+        final long recordingId = flightRecorder.startRecordingFor(command);
 
         //Then
         final RecordingSession recordingSession = this.spyRecordings.get(recordingId);
@@ -72,7 +258,11 @@ class FlightRecorderTest {
         final FlightRecorder flightRecorder = new FlightRecorder(this.mockConfiguration, this.spyRecordings);
 
         //When
-        final long recordingId = flightRecorder.startRecordingFor(Duration.ofMillis(10), "dummyDescription");
+        final StartRecordingCommand command = new StartRecordingCommand();
+        command.setDuration(10L);
+        command.setTimeUnit(ChronoUnit.MILLIS);
+        command.setDescription("dummyDescription");
+        final long recordingId = flightRecorder.startRecordingFor(command);
 
         //Then
         final RecordingSession recordingSession = this.spyRecordings.get(recordingId);
@@ -91,7 +281,7 @@ class FlightRecorderTest {
         final FlightRecorder flightRecorder = new FlightRecorder(this.mockConfiguration);
 
         //When
-        final Map<String, String> mapSettings = flightRecorder.getConfigurationSettings(mockConfigurationList);
+        final Map<String, String> mapSettings = flightRecorder.getConfigurationSettings(mockConfigurationList, null);
 
         //Then
         assertThat(mapSettings.get("settingsKey")).isEqualTo("customValue");
@@ -109,10 +299,33 @@ class FlightRecorderTest {
         final FlightRecorder flightRecorder = new FlightRecorder(this.mockConfiguration);
 
         //When
-        final Map<String, String> mapSettings = flightRecorder.getConfigurationSettings(mockConfigurationList);
+        final Map<String, String> mapSettings = flightRecorder.getConfigurationSettings(mockConfigurationList, null);
 
         //Then
         assertThat(mapSettings.get("settingsKey")).isEqualTo("profileValue");
+        assertThat(mapSettings.get("settingsKeyForOverride")).isEqualTo("profileValueForOverride");
+
+    }
+
+
+    @Test
+    void givenNonConfiguredCustomConfigurationProfileButCustomSettings_whenSettingsAreChosen_thenProfileSettingsAreUedAndCustomSettingsOverrideProperties() {
+        //Given
+        final List<Configuration> mockConfigurationList = generateMockConfigurationList();
+
+        given(this.mockConfiguration.getJfrCustomConfig()).willReturn(null);
+
+        final FlightRecorder flightRecorder = new FlightRecorder(this.mockConfiguration);
+
+        final Map<String, String> customSettings = new HashMap();
+        customSettings.put("settingsKeyForOverride", "customSettingProfileValueOverriden");
+
+        //When
+        final Map<String, String> mapSettings = flightRecorder.getConfigurationSettings(mockConfigurationList, customSettings);
+
+        //Then
+        assertThat(mapSettings.get("settingsKey")).isEqualTo("profileValue");
+        assertThat(mapSettings.get("settingsKeyForOverride")).isEqualTo("customSettingProfileValueOverriden");
 
 
     }
@@ -131,6 +344,7 @@ class FlightRecorderTest {
         given(profileConfiguration.getName()).willReturn("profile");
         final Map<String, String> profileSettings = new HashMap<>();
         profileSettings.put("settingsKey", "profileValue");
+        profileSettings.put("settingsKeyForOverride", "profileValueForOverride");
         given(profileConfiguration.getSettings()).willReturn(profileSettings);
         mockConfigurationList.add(profileConfiguration);
 
