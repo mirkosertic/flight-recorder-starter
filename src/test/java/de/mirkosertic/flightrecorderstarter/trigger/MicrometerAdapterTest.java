@@ -34,8 +34,8 @@ class MicrometerAdapterTest {
     void queryNotExistingMetric() {
         final MicrometerAdapter adapter = new MicrometerAdapter(this.meterRegistry);
         final double result = adapter.meter("abc.jvm.memory.used")
-                .tag("area", "abc.nonheap")
-                .tag("id", "abc.Metaspace")
+                .tag("area" , "abc.nonheap")
+                .tag("id" , "abc.Metaspace")
                 .measurement("value");
 
         assertEquals(0d, result);
@@ -45,8 +45,8 @@ class MicrometerAdapterTest {
     void queryMemoryUsed() {
         final MicrometerAdapter adapter = new MicrometerAdapter(this.meterRegistry);
         final double result = adapter.meter("jvm.memory.used")
-                .tag("area", "nonheap")
-                .tag("id", "Metaspace")
+                .tag("area" , "nonheap")
+                .tag("id" , "Metaspace")
                 .measurement("value");
 
         assertTrue(result > 0);

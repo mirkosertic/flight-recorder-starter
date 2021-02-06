@@ -1,6 +1,7 @@
 package de.mirkosertic.flightrecorderstarter.core;
 
 
+import de.mirkosertic.flightrecorderstarter.actuator.model.FlightRecorderPublicSession;
 import de.mirkosertic.flightrecorderstarter.configuration.FlightRecorderDynamicConfiguration;
 import jdk.jfr.Configuration;
 import jdk.jfr.Recording;
@@ -222,6 +223,26 @@ class FlightRecorderTest {
         final RecordingSession recordingSession = this.spyRecordings.get(recordingId);
         assertThat(recordingSession).isNotNull();
         assertThat(recordingSession.getRecording().getMaxSize()).isEqualTo(0L);
+    }
+
+    @Test
+    void givenRecordingSessionCreated_whenTryToRetrieveInfo_thenAPublicRecordingSessionObjectIsReturned() {
+        //Given
+        final FlightRecorder flightRecorder = new FlightRecorder(this.mockConfiguration, this.spyRecordings);
+        final String dummyDescr = "dummyDescriptionGetById";
+        final Recording mockRecording = mock(Recording.class);
+        given(mockRecording.getId()).willReturn(1L);
+        given(mockRecording.getStartTime()).willReturn(Instant.now());
+        given(mockRecording.getState()).willReturn(RecordingState.RUNNING);
+        final RecordingSession recordingSession = new RecordingSession(mockRecording, dummyDescr);
+        this.spyRecordings.put(1L, recordingSession);
+
+        //when
+        final FlightRecorderPublicSession frps = flightRecorder.getById(1L);
+
+        //then
+        assertThat(frps.getDescription()).isEqualTo(dummyDescr);
+        assertThat(frps.getId()).isEqualTo(1L);
     }
 
     @Test

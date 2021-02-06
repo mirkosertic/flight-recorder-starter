@@ -23,7 +23,7 @@ class FlightRecorderStaticControllerHappyPathIntegrationTest {
         //given empty
 
         //when and then
-        this.mockMvc.perform(get("/actuator/flightrecorder/static" + D3_V4_MIN_JS))
+        this.mockMvc.perform(get("/actuator/flightrecorder/ui" + D3_V4_MIN_JS))
                 .andExpect(status().isOk());
     }
 
