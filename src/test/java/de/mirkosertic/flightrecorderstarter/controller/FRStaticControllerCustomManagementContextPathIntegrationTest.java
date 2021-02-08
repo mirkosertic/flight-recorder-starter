@@ -24,7 +24,7 @@ class FRStaticControllerCustomManagementContextPathIntegrationTest {
         //given empty
 
         //when and then
-        this.mockMvc.perform(get("/customActuator/flightrecorder/static" + D3_V4_MIN_JS))
+        this.mockMvc.perform(get("/customActuator/flightrecorder/ui" + D3_V4_MIN_JS))
                 .andExpect(status().isOk());
     }
 

@@ -20,7 +20,6 @@ import de.mirkosertic.flightrecorderstarter.core.FlightRecorder;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -36,9 +35,8 @@ public class FlightRecorderAutoConfiguration {
     }
 
     @Bean
-    public FlightRecorderEndpoint flightRecorderEndpoint(final ApplicationContext applicationContext,
-                                                         final FlightRecorder flightRecorder) {
-        return new FlightRecorderEndpoint(applicationContext, flightRecorder);
+    public FlightRecorderEndpoint flightRecorderEndpoint(final FlightRecorder flightRecorder) {
+        return new FlightRecorderEndpoint(flightRecorder);
     }
 
 

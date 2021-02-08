@@ -37,14 +37,13 @@ Please note: the minimum Java/JVM runtime version is 11!
 The following `cURL` command starts a new Flight Recording and returns the created Flight Recording ID:
 
 ``` shell
-curl  -i -X PUT -H "Content-Type: application/json" -d '{"duration": "60","timeUnit":"SECONDS"}' http://localhost:8080/actuator/flightrecorder
+curl  -i -X POST -H "Content-Type: application/json" -d '{"duration": "60","timeUnit":"SECONDS"}' http://localhost:8080/actuator/flightrecorder/
 
-HTTP/1.1 200 
-Content-Type: text/plain
-Content-Length: 1
-Date: Thu, 03 Sep 2020 11:24:53 GMT
+HTTP/1.1 201 
+Location: http://localhost:8080/actuator/flightrecorder/1
+Content-Length: 0
+Date: Fri, 05 Feb 2021 12:37:07 GMT
 
-1
 ```
 
 Flight Recording starts for a given period, in this case 60 seconds and stops then.
@@ -106,7 +105,7 @@ This starter can generate an interactive Flamegraph from a Flight Recorder recor
 visiting the following URL in your browser to see the graph for a recording with ID `1`:
 
 ```
-http://localhost:8080/actuator/flightrecorder/1/flamegraph.html
+http://localhost:8080/actuator/flightrecorder/ui/1/flamegraph.html
 ```
 
 and you'll get:
@@ -121,7 +120,7 @@ with a
 However, you can always get the unfiltered Flamegraph by visiting:
 
 ```
-http://localhost:8080/actuator/flightrecorder/1/rawflamegraph.html
+http://localhost:8080/actuator/flightrecorder/ui/1/rawflamegraph.html
 ```
 
 ## Stopping Flight Recording
@@ -129,7 +128,28 @@ http://localhost:8080/actuator/flightrecorder/1/rawflamegraph.html
 The following `cURL` command stops the Flight Recording with ID `1`.
 
 ```shell
-curl -X DELETE http://localhost:8080/actuator/flightrecorder/1
+curl -i -X PUT http://localhost:8080/actuator/flightrecorder/1
+
+
+HTTP/1.1 200
+Content-Type: application/json
+Transfer-Encoding: chunked
+Date: Fri, 05 Feb 2021 12:39:43 GMT
+
+{"id":1,"startedAt":"2021-02-05 13:37:08","status":"CLOSED","finishedAt":"2021-02-05 13:39:43","description":null}
+
+```
+
+## Delete Flight Recording
+
+The following `cURL` command stops the Flight Recording with ID `1`.
+
+```shell
+curl -i -X DELETE http://localhost:8080/actuator/flightrecorder/1
+
+HTTP/1.1 204 
+Date: Fri, 05 Feb 2021 12:40:13 GMT
+
 ```
 
 Later, this recording might be deleted in memory and physically by the scheduler process described below.
@@ -139,7 +159,7 @@ Later, this recording might be deleted in memory and physically by the scheduler
 There is a process to delete automatically the recording files (whose status are STOPPED or CLOSED) periodically
 according the following property
 
-```
+```properties
 flightrecorder.recording-cleanup-interval=5000
 ```
 
@@ -148,7 +168,7 @@ with default value set on 5000ms. The base unit is MILLISECONDS. Take into accou
 The watermark used to annotate a recording as "removable" is the start time, The threshold is configured via the
 properties below:
 
-```
+```properties
 flightrecorder.old-recordings-TTL=1
 flightrecorder.old-recordings-TTL-time-unit=Hours  # java.time.temporal.ChronoUnit available values
 ```
@@ -165,18 +185,23 @@ can configure triggers based on SpEL (Spring Expression Language) which are eval
 expression evaluates to true, a Flight Recording in started with a predefined duration and configuration. The most
 common setup would be to trigger a Flight Recording profiling once CPU usage is above a given value.
 
-By default, this scheduled process is executed each 10 seconds. The default configuration can be changed thought this
-property:
+By default, this feature is enabled. In case you want to disable it, set the following property to `false`:
 
 ```properties
-flightrecorder.triggerCheckInterval=10000
+flightrecorder.trigger-enabled=false
+```
+
+This scheduled process is executed each 10 seconds. The default configuration can be changed thought this property:
+
+```properties
+flightrecorder.trigger-check-interval=10000
 ```
 
 By default, this scheduled process is executed each 10 seconds. The default configuration can be changed thought this
 property:
 
 ```properties
-flightrecorder.triggerCheckInterval=10000
+flightrecorder.trigger-check-interval=10000
 ```
 
 IMPORTANT: Be aware that the main app should be annotated with @EnableScheduling to enable the scheduled processes.
@@ -186,8 +211,8 @@ Here is a sample configuration file in YAML syntax:
 ```yml
 flightrecorder:
   enabled: true  # is this starter active?
-  recordingCleanupInterval: 5000 # try to cleanup old recordings every 5 seconds
-  triggerCheckInterval: 10000 # evaluate trigger expressions every 10 seconds
+  recording-cleanup-interval: 5000 # try to cleanup old recordings every 5 seconds
+  trigger-check-interval: 10000 # evaluate trigger expressions every 10 seconds
   trigger:
     - expression: meter('jvm.memory.used').tag('area','nonheap').tag('id','Metaspace').measurement('value') > 100
       startRecordingCommand:
@@ -201,12 +226,6 @@ The list of all created recordings can be seen as a JSON file using the followin
 http://localhost:8080/actuator/flightrecorder/
 ```
 
-By default, this feature is enabled. In case you want to disable it, set the following property to `false`:
-
-```properties
-flightrecorder.trigger-enabled=false
-```
-
 ## Advanced Configuration
 
 ### Location of recordings
@@ -214,7 +233,7 @@ flightrecorder.trigger-enabled=false
 By default, all the recording files are stored at temporal system folder, ofter the "/tmp" folder. This base path can be
 changed through the following property:
 
-```
+```yml
 flightrecorder:
   jfr-base-path: /my-path 
 ```
@@ -224,7 +243,7 @@ flightrecorder:
 By default, the used configuration is "_<<JAVA_HOME>>/lib/jfr/profile.jfc_". A custom configuration can be changed
 through the following property:
 
-```
+```yml
 flightrecorder:
   jfr-custom-config: mycustomjfc 
 ```

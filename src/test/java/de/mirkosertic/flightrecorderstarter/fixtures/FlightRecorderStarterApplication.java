@@ -20,7 +20,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class FlightRecorderStarterApplication {
-	
+
     public static void main(final String[] args) {
         SpringApplication.run(FlightRecorderStarterApplication.class, args);
     }
