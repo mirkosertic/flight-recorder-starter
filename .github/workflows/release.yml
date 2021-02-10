@@ -24,7 +24,7 @@ jobs:
       - run: |
           echo "on a tag -> set pom.xml <version> to ${{steps.tag.outputs.tag}}"
           mvn --settings .mvn/settings.xml org.codehaus.mojo:versions-maven-plugin:set -DnewVersion=${{steps.tag.outputs.tag}}
-      - run: #mvn --no-transfer-progress --batch-mode --settings .mvn/settings.xml clean javadoc:jar deploy -P signed
+          #mvn --no-transfer-progress --batch-mode --settings .mvn/settings.xml clean javadoc:jar deploy -P signed
         env:
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
