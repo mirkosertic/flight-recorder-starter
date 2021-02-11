@@ -4,6 +4,7 @@ on:
     branches: [ master ]
 jobs:
   build:
+    if: github.repository == 'mirkosertic/flight-recorder-starter'
     environment: ci
     runs-on: 'ubuntu-latest'
     steps:
