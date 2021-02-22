@@ -152,8 +152,6 @@ public class ReactiveFlightRecorderEndpoint {
                     LOGGER.log(Level.INFO, "Closing recording with ID {0} and downloading file", recordingIdMap);
                     final File file = this.flightRecorder.stopRecording(recordingIdMap);
                     if (file != null) {
-                        // final HttpHeaders headers = new HttpHeaders();
-
                         return ResponseEntity.ok()
                                 .headers(headers -> {
                                     headers
