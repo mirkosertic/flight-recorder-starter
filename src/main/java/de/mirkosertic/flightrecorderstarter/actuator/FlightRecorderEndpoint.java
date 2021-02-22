@@ -18,6 +18,7 @@ package de.mirkosertic.flightrecorderstarter.actuator;
 import de.mirkosertic.flightrecorderstarter.actuator.model.FlightRecorderPublicSession;
 import de.mirkosertic.flightrecorderstarter.core.FlightRecorder;
 import de.mirkosertic.flightrecorderstarter.core.StartRecordingCommand;
+import org.springframework.boot.actuate.endpoint.annotation.Selector;
 import org.springframework.boot.actuate.endpoint.web.annotation.RestControllerEndpoint;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
@@ -47,7 +48,7 @@ public class FlightRecorderEndpoint {
 
 
     @GetMapping("/")
-    public ResponseEntity allSessions() {
+    public ResponseEntity<?> allSessions() {
         try {
             LOGGER.log(Level.INFO, "Retrieving all known recording sessions");
             final List<FlightRecorderPublicSession> sessions = this.flightRecorder.sessions();
@@ -58,16 +59,16 @@ public class FlightRecorderEndpoint {
     }
 
     @PostMapping("/")
-    public ResponseEntity startRecording(@RequestBody final StartRecordingCommand command) {
+    public ResponseEntity<?> startRecording(@RequestBody final StartRecordingCommand command) {
         if (command.getDuration() == null || command.getTimeUnit() == null) {
             return ResponseEntity.badRequest().body("Duration and TimeUnit cannot be null");
         }
         try {
-            LOGGER.log(Level.INFO, "Trying to start recording for {0} {1}" ,
+            LOGGER.log(Level.INFO, "Trying to start recording for {0} {1}",
                     new Object[]{command.getDuration(), command.getTimeUnit()});
             final long recordingId = this.flightRecorder
                     .startRecordingFor(command);
-            LOGGER.log(Level.INFO, "Created recording with ID {0}" , recordingId);
+            LOGGER.log(Level.INFO, "Created recording with ID {0}", recordingId);
             return ResponseEntity
                     .created(ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").build(recordingId)).build();
         } catch (final Exception e) {
@@ -76,8 +77,8 @@ public class FlightRecorderEndpoint {
     }
 
     @PutMapping("/{recordingId}")
-    public ResponseEntity stopRecording(@PathVariable final long recordingId) {
-        LOGGER.log(Level.INFO, "Stopping recording with ID {0}" , recordingId);
+    public ResponseEntity<?> stopRecording(@Selector @PathVariable final long recordingId) {
+        LOGGER.log(Level.INFO, "Stopping recording with ID {0}", recordingId);
         final File file = this.flightRecorder.stopRecording(recordingId);
         if (file != null) {
             return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(this.flightRecorder.getById(recordingId));
@@ -86,9 +87,9 @@ public class FlightRecorderEndpoint {
     }
 
     @DeleteMapping("/{recordingId}")
-    public ResponseEntity deleteRecording(@PathVariable final long recordingId) {
+    public ResponseEntity<?> deleteRecording(@Selector @PathVariable final long recordingId) {
         try {
-            LOGGER.log(Level.INFO, "Deleting recording with ID {0}" , recordingId);
+            LOGGER.log(Level.INFO, "Deleting recording with ID {0}", recordingId);
 
             final File file = this.flightRecorder.stopRecording(recordingId);
             if (file != null) {
@@ -106,16 +107,16 @@ public class FlightRecorderEndpoint {
 
 
     @GetMapping("/{recordingId}")
-    public ResponseEntity downloadRecording(@PathVariable final long recordingId) {
-        LOGGER.log(Level.INFO, "Closing recording with ID {0} and downloading file" , recordingId);
+    public ResponseEntity<?> downloadRecording(@Selector @PathVariable final long recordingId) {
+        LOGGER.log(Level.INFO, "Closing recording with ID {0} and downloading file", recordingId);
         final File file = this.flightRecorder.stopRecording(recordingId);
         if (file != null) {
             final HttpHeaders headers = new HttpHeaders();
             headers
                     .add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=flightrecording_" + recordingId + ".jfr");
-            headers.add("Cache-Control" , "no-cache, no-store, must-revalidate");
-            headers.add("Pragma" , "no-cache");
-            headers.add("Expires" , "0");
+            headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
+            headers.add("Pragma", "no-cache");
+            headers.add("Expires", "0");
 
             return ResponseEntity.ok()
                     .headers(headers)
