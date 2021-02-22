@@ -15,17 +15,22 @@
  */
 package de.mirkosertic.flightrecorderstarter.configuration;
 
-import de.mirkosertic.flightrecorderstarter.actuator.FlightRecorderEndpoint;
 import de.mirkosertic.flightrecorderstarter.core.FlightRecorder;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.PropertySource;
 
-@ConditionalOnProperty(prefix = "flightrecorder", name = "enabled", havingValue = "true", matchIfMissing = true)
 @Configuration
+@ConditionalOnProperty(prefix = "flightrecorder", name = "enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnWebApplication
+@PropertySource("classpath:flight-recorder.properties")
 @ImportAutoConfiguration(TriggerConfiguration.class)
+@Import(value = {WebMvcFlightRecorderConfiguration.class, WebFluxFlightRecorderConfiguration.class})
 @EnableConfigurationProperties(FlightRecorderDynamicConfiguration.class)
 public class FlightRecorderAutoConfiguration {
 
@@ -33,11 +38,5 @@ public class FlightRecorderAutoConfiguration {
     public FlightRecorder flightRecorder(final FlightRecorderDynamicConfiguration configuration) {
         return new FlightRecorder(configuration);
     }
-
-    @Bean
-    public FlightRecorderEndpoint flightRecorderEndpoint(final FlightRecorder flightRecorder) {
-        return new FlightRecorderEndpoint(flightRecorder);
-    }
-
 
 }
