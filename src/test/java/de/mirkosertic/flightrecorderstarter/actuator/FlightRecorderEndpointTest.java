@@ -19,6 +19,7 @@ import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguratio
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -55,6 +56,7 @@ class FlightRecorderEndpointTest {
             ServletManagementContextAutoConfiguration.class,
             PropertyPlaceholderAutoConfiguration.class, WebMvcAutoConfiguration.class,
             ManagementContextAutoConfiguration.class, DispatcherServletAutoConfiguration.class})
+    @PropertySource("classpath:flight-recorder.properties")
     static class TestConfiguration {
 
 
@@ -265,9 +267,9 @@ class FlightRecorderEndpointTest {
 
         //when
         final MvcResult result = this.mockMvc.perform(get("/actuator/flightrecorder/1"))
-                .andExpect(header().string("Cache-Control" , "no-cache, no-store, must-revalidate"))
-                .andExpect(header().string("Pragma" , "no-cache"))
-                .andExpect(header().string("Expires" , "0"))
+                .andExpect(header().string("Cache-Control", "no-cache, no-store, must-revalidate"))
+                .andExpect(header().string("Pragma", "no-cache"))
+                .andExpect(header().string("Expires", "0"))
                 .andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
                 .andExpect(status().isOk())
                 .andReturn();
