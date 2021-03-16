@@ -19,7 +19,7 @@ Just add the following dependency to your Spring Boot 2 project:
 <dependency>
     <groupId>de.mirkosertic</groupId>
     <artifactId>flight-recorder-starter</artifactId>
-    <version>2.1.0</version>
+    <version>2.2.0</version>
 </dependency>
 ```
 
