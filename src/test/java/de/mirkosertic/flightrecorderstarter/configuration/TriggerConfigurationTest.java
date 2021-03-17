@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.actuate.autoconfigure.metrics.CompositeMeterRegistryAutoConfiguration;
 import org.springframework.boot.actuate.autoconfigure.metrics.MetricsAutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
-import org.springframework.boot.test.context.runner.ApplicationContextRunner;
+import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -20,7 +20,7 @@ class TriggerConfigurationTest {
                 CompositeMeterRegistryAutoConfiguration.class, FlightRecorderAutoConfiguration.class);
 
         //When
-        new ApplicationContextRunner().withConfiguration(autoConfigurations).run(context -> {
+        new WebApplicationContextRunner().withConfiguration(autoConfigurations).run(context -> {
             //Then
             assertThat(context).hasSingleBean(TriggerConfiguration.class);
             assertThat(context).hasSingleBean(MicrometerAdapter.class);
@@ -37,7 +37,7 @@ class TriggerConfigurationTest {
         final String[] properties = {"flightrecorder.trigger-enabled=true"};
 
         //When
-        new ApplicationContextRunner().withConfiguration(autoConfigurations)
+        new WebApplicationContextRunner().withConfiguration(autoConfigurations)
                 .withPropertyValues(properties).run(context -> {
             //Then
             assertThat(context).hasSingleBean(TriggerConfiguration.class);
@@ -55,7 +55,7 @@ class TriggerConfigurationTest {
         final String[] properties = {"flightrecorder.trigger-enabled=false"};
 
         //When
-        new ApplicationContextRunner().withConfiguration(autoConfigurations).withPropertyValues(properties).run(context -> {
+        new WebApplicationContextRunner().withConfiguration(autoConfigurations).withPropertyValues(properties).run(context -> {
             //Then
             assertThat(context).doesNotHaveBean(TriggerConfiguration.class);
             assertThat(context).doesNotHaveBean(MicrometerAdapter.class);
@@ -72,7 +72,7 @@ class TriggerConfigurationTest {
         final String[] properties = {"flightrecorder.trigger-enabled=true"};
 
         //When
-        new ApplicationContextRunner().withConfiguration(autoConfigurations)
+        new WebApplicationContextRunner().withConfiguration(autoConfigurations)
                 .withPropertyValues(properties).run(context -> {
             //Then
             assertThat(context).doesNotHaveBean(TriggerConfiguration.class);

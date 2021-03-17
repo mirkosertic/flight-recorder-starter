@@ -19,7 +19,7 @@ Just add the following dependency to your Spring Boot 2 project:
 <dependency>
     <groupId>de.mirkosertic</groupId>
     <artifactId>flight-recorder-starter</artifactId>
-    <version>2.1.0</version>
+    <version>2.2.0</version>
 </dependency>
 ```
 
@@ -29,6 +29,29 @@ and don't forget to add the following configuration:
 flightrecorder:
   enabled: true  # is this starter active?
 ``` 
+
+IMPORTANT: By default, this starter doesn't include spring webmvc or spring webflux dependencies. You will have to
+include them according the stack you wish.
+
+**WebMvc**
+
+```xml
+
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+</dependency>
+```
+
+**WebFlux**
+
+```xml
+
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-webflux</artifactId>
+</dependency>
+```
 
 Please note: the minimum Java/JVM runtime version is 11!
 
