@@ -15,13 +15,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 class FlightRecorderAutoConfigurationTest {
 
     private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-            .withConfiguration(AutoConfigurations.of(FlightRecorderAutoConfiguration.class));
+            .withConfiguration(AutoConfigurations.of(FlightRecorderPropertiesAutoConfiguration.class, FlightRecorderAutoConfiguration.class));
 
     private final WebApplicationContextRunner webContextRunner = new WebApplicationContextRunner()
-            .withConfiguration(AutoConfigurations.of(FlightRecorderAutoConfiguration.class));
+            .withConfiguration(AutoConfigurations.of(FlightRecorderPropertiesAutoConfiguration.class, FlightRecorderAutoConfiguration.class));
 
     private final ReactiveWebApplicationContextRunner reactiveContextRunner = new ReactiveWebApplicationContextRunner()
-            .withConfiguration(AutoConfigurations.of(FlightRecorderAutoConfiguration.class));
+            .withConfiguration(AutoConfigurations.of(FlightRecorderPropertiesAutoConfiguration.class, FlightRecorderAutoConfiguration.class));
 
 
     @Test
