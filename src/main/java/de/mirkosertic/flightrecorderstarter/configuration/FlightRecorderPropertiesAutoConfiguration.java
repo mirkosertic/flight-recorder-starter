@@ -21,6 +21,4 @@ import org.springframework.context.annotation.PropertySource;
 @Configuration
 @PropertySource("classpath:flight-recorder.properties")
 public class FlightRecorderPropertiesAutoConfiguration {
-
-
 }
