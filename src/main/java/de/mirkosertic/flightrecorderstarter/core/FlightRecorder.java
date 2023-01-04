@@ -32,6 +32,7 @@ import java.time.ZoneId;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class FlightRecorder {
 
@@ -105,7 +106,7 @@ public class FlightRecorder {
                 }
                 return recording.getDestination().toFile();
             } else {
-                LOGGER.log(Level.WARNING, "No recording with id {0} found" , recordingId);
+                LOGGER.log(Level.WARNING, "No recording with id {0} found", recordingId);
                 return null;
             }
         }
@@ -162,27 +163,85 @@ public class FlightRecorder {
     @Scheduled(fixedDelayString = "${flightrecorder.recording-cleanup-interval}")
     public void cleanupOldRecordings() {
         synchronized (this.recordings) {
-            final Instant deadline = Instant.now()
-                    .minus(this.configuration.getOldRecordingsTTL(), this.configuration.getOldRecordingsTTLTimeUnit());
-            final Set<Long> deletedRecordings = new HashSet<>();
-            for (final Map.Entry<Long, RecordingSession> entry : this.recordings.entrySet()) {
-                final Recording recording = entry.getValue().getRecording();
-                if ((recording.getState() == RecordingState.STOPPED || recording.getState() == RecordingState.CLOSED) &&
-                        recording.getStartTime().isBefore(deadline)) {
-                    try {
-                        if (recording.getState() == RecordingState.STOPPED) {
-                            recording.close();
-                        }
-                    } catch (final Exception e) {
-                        LOGGER.log(Level.INFO, "Cannot close recording {0}" , new Object[]{recording.getId()});
-                    }
-                    deletedRecordings.add(entry.getKey());
-                }
+
+            Set<Long> deletableRecordings;
+            if (this.configuration.getRecordingCleanupType() == FlightRecorderDynamicConfiguration.CleanupType.TTL) {
+                deletableRecordings = getDeletableRecordingsByTTL();
+            } else if (this.configuration.getRecordingCleanupType() == FlightRecorderDynamicConfiguration.CleanupType.COUNT) {
+                deletableRecordings = getDeletableRecordingsByCount();
+            } else {
+                throw new IllegalStateException(String.format("Unknown CleanupType '%s'. Deletion failed.", this.configuration.getRecordingCleanupType()));
             }
-            deletedRecordings.forEach(this::deleteRecording);
 
-
+            deletableRecordings.forEach(this::deleteRecording);
         }
+    }
+
+    /**
+     * Return finished recordings with startTime older than (Instant.now() - TTL)
+     *
+     * @return Set of recording IDs to be deleted
+     */
+    protected Set<Long> getDeletableRecordingsByTTL() {
+        final Set<Long> deletableRecordings = new HashSet<>();
+        final Instant deadline = Instant.now()
+                .minus(this.configuration.getOldRecordingsTTL(), this.configuration.getOldRecordingsTTLTimeUnit());
+        for (final Map.Entry<Long, RecordingSession> entry : this.recordings.entrySet()) {
+            final Recording recording = entry.getValue().getRecording();
+            if ((recording.getState() == RecordingState.STOPPED || recording.getState() == RecordingState.CLOSED) &&
+                    recording.getStartTime().isBefore(deadline)) {
+                try {
+                    if (recording.getState() == RecordingState.STOPPED) {
+                        recording.close();
+                    }
+                } catch (final Exception e) {
+                    LOGGER.log(Level.INFO, "Cannot close recording {0}", new Object[]{recording.getId()});
+                }
+                deletableRecordings.add(entry.getKey());
+            }
+        }
+        LOGGER.log(Level.FINE, "Found {0} finished recording(s) to be deleted based on TTL ({1} {2}).",
+                new Object[]{deletableRecordings.size(), this.configuration.getOldRecordingsTTL(), this.configuration.getOldRecordingsTTLTimeUnit()});
+
+        return deletableRecordings;
+    }
+
+    /**
+     * If the total number of recordings is above the threshold
+     * defined in {@code flightrecorder.old-recordings-max},
+     * returns the oldest recordings that are above the threshold & finished.
+     *
+     * @return Set of recording IDs to be deleted
+     */
+    protected Set<Long> getDeletableRecordingsByCount() {
+        final int maxRecordings = this.configuration.getOldRecordingsMax();
+        if (this.recordings.size() <= maxRecordings) {
+            return Collections.emptySet();
+        }
+
+        List<Map.Entry<Long, RecordingSession>> recordingsAboveThreshold = this.recordings.entrySet().stream()
+                .sorted(Comparator.comparing(recs -> recs.getValue().getRecording().getStartTime()))
+                .collect(Collectors.toList())
+                .subList(0, this.recordings.size() - maxRecordings);
+
+        final Set<Long> deletableRecordings = new HashSet<>();
+        for (final Map.Entry<Long, RecordingSession> entry : recordingsAboveThreshold) {
+            final Recording recording = entry.getValue().getRecording();
+            if ((recording.getState() == RecordingState.STOPPED || recording.getState() == RecordingState.CLOSED)) {
+                try {
+                    if (recording.getState() == RecordingState.STOPPED) {
+                        recording.close();
+                    }
+                } catch (final Exception e) {
+                    LOGGER.log(Level.INFO, "Cannot close recording {0}", new Object[]{recording.getId()});
+                }
+                deletableRecordings.add(entry.getKey());
+            }
+        }
+        LOGGER.log(Level.FINE, "Found {0} finished recording(s) to be deleted based on COUNT threshold ({1} recordings).",
+                new Object[]{deletableRecordings.size(), maxRecordings});
+
+        return deletableRecordings;
     }
 
     public void deleteRecording(final long recordingId) {
