@@ -33,6 +33,7 @@ public class FlightRecorderDynamicConfiguration {
     private CleanupType recordingCleanupType;
     private long oldRecordingsTTL;
     private ChronoUnit oldRecordingsTTLTimeUnit;
+    private int oldRecordingsMax;
     private String jfrBasePath;
     private String jfrCustomConfig;
 
@@ -68,6 +69,14 @@ public class FlightRecorderDynamicConfiguration {
 
     public void setOldRecordingsTTLTimeUnit(final ChronoUnit oldRecordingsTTLTimeUnit) {
         this.oldRecordingsTTLTimeUnit = oldRecordingsTTLTimeUnit;
+    }
+
+    public int getOldRecordingsMax() {
+        return this.oldRecordingsMax;
+    }
+
+    public void setOldRecordingsMax(int oldRecordingsMax) {
+        this.oldRecordingsMax = oldRecordingsMax;
     }
 
     public List<Trigger> getTrigger() {
