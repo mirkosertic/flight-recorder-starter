@@ -179,8 +179,9 @@ Later, this recording might be deleted in memory and physically by the scheduler
 
 ### Auto-deletion process
 
-There is a process to delete automatically the recording files (whose status are STOPPED or CLOSED) periodically
-according the following property
+IMPORTANT: Be aware that the main app should be annotated with @EnableScheduling to enable the scheduled processes for auto-deletion.
+
+The process periodically deletes recording files, which are in status `STOPPED` or `CLOSED`. The cleanup interval can be configured via
 
 ```properties
 flightrecorder.recording-cleanup-interval=5000
@@ -188,18 +189,34 @@ flightrecorder.recording-cleanup-interval=5000
 
 with default value set on 5000ms. The base unit is MILLISECONDS. Take into account that the deletion is permanently.
 
-The watermark used to annotate a recording as "removable" is the start time, The threshold is configured via the
-properties below:
+The watermark used to annotate a recording as "removable" is either time-based (TTL) or count-based (COUNT).
+
+The default cleanup type is `TTL` and can be changed using the property:
+```properties
+flightrecorder.recording-cleanup-type=COUNT
+```
+
+#### Deletion by TTL
+
+If the cleanup type is `TTL` (time to live), the recording's start time represents the reference point for the TTL deletion. The threshold can be configured via the properties below (default: 1 Hour):
 
 ```properties
 flightrecorder.old-recordings-TTL=1
 flightrecorder.old-recordings-TTL-time-unit=Hours  # java.time.temporal.ChronoUnit available values
 ```
 
-A file will be removed when the status are STOPPED or CLOSED, and the start time is before than now minus threshold
-configured.
+A file will be removed when the status is `STOPPED` or `CLOSED`, and the recording's start time is before _now_ minus _threshold configured_.
 
-IMPORTANT: Be aware that the main app should be annotated with @EnableScheduling to enable the scheduled processes.
+#### Deletion by COUNT
+
+If the cleanup type is `COUNT`, the oldest recordings will be deleted when the total number of existing recordings surpasses the configured threshold of recordings to keep. The threshold can be configured via the property below (default: 10 recordings):
+
+```properties
+flightrecorder.old-recordings-max=10
+```
+
+A file will be removed when the status is `STOPPED` or `CLOSED`, based on a FIFO logic.
+
 
 ## Trigger Flight Recording based on Micrometer Metrics
 
