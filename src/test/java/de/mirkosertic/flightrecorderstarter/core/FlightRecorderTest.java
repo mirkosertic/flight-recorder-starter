@@ -8,6 +8,8 @@ import jdk.jfr.Recording;
 import jdk.jfr.RecordingState;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.boot.system.SystemProperties;
 
 import java.io.File;
@@ -25,6 +27,7 @@ import java.util.Map;
 import static de.mirkosertic.flightrecorderstarter.configuration.FlightRecorderDynamicConfiguration.CleanupType;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.*;
@@ -381,14 +384,81 @@ class FlightRecorderTest {
     }
 
     @Test
-    void givenNoneRecordingSessions_whenCleanUpProcessIsExecuted_thenNothingHappened() {
+    void givenConfigurationCleanupByTTL_whenCleanupOldRecordings_thenCleanupByTTL() {
+        //given
+        final Map<Long, RecordingSession> recordings = spy(new HashMap<>());
+        final FlightRecorderDynamicConfiguration configuration = new FlightRecorderDynamicConfiguration();
+        configuration.setRecordingCleanupType(CleanupType.TTL.toString());
+        configuration.setOldRecordingsTTL(1);
+        configuration.setOldRecordingsTTLTimeUnit(ChronoUnit.SECONDS);
+
+        final FlightRecorder flightRecorder = spy(new FlightRecorder(configuration, recordings));
+
+        //when
+        flightRecorder.cleanupOldRecordings();
+
+        //then
+        verify(flightRecorder, times(1)).getDeletableRecordingsByTTL();
+        verify(flightRecorder, never()).getDeletableRecordingsByCount();
+    }
+
+    @Test
+    void givenConfigurationCleanupByCount_whenCleanupOldRecordings_thenCleanupByCount() {
+        //given
+        final Map<Long, RecordingSession> recordings = spy(new HashMap<>());
+        final FlightRecorderDynamicConfiguration configuration = new FlightRecorderDynamicConfiguration();
+        configuration.setRecordingCleanupType(CleanupType.COUNT.toString());
+        configuration.setOldRecordingsMax(2);
+
+        final FlightRecorder flightRecorder = spy(new FlightRecorder(configuration, recordings));
+
+        //when
+        flightRecorder.cleanupOldRecordings();
+
+        //then
+        verify(flightRecorder, times(1)).getDeletableRecordingsByCount();
+        verify(flightRecorder, never()).getDeletableRecordingsByTTL();
+    }
+
+    /**
+     * In reality, the service would not start if the cleanupType is misconfigured,
+     * and log the faulty application.properties value instead.
+     * In tests, the cleanupType must be set manually.
+     * If not set, a test will only fail, if an exception is thrown at runtime.
+     * This test asserts this behavior.
+     */
+    @Test
+    void givenConfigurationUnknownCleanupType_whenCleanupOldRecordings_thenThrows() {
+        //given
+        final Map<Long, RecordingSession> recordings = spy(new HashMap<>());
+        final FlightRecorderDynamicConfiguration configuration = new FlightRecorderDynamicConfiguration();
+        // recordingCleanupType explicity not set
+
+        final FlightRecorder flightRecorder = new FlightRecorder(configuration, recordings);
+
+        //when/then
+        assertThrows(IllegalArgumentException.class, flightRecorder::cleanupOldRecordings);
+    }
+
+    @ValueSource(strings = {
+            "TTL",
+            "COUNT"
+    })
+    @ParameterizedTest
+    void givenNoneRecordingSessions_whenCleanUpProcessIsExecuted_thenNothingHappened(String cleanupType) {
         //  + no recordings -> deletionservice is not invoked
 
         //given
         final Map<Long, RecordingSession> recordings = spy(new HashMap<>());
         final FlightRecorderDynamicConfiguration configuration = new FlightRecorderDynamicConfiguration();
-        configuration.setOldRecordingsTTL(1);
-        configuration.setOldRecordingsTTLTimeUnit(ChronoUnit.SECONDS);
+        configuration.setRecordingCleanupType(cleanupType);
+        if (configuration.getRecordingCleanupType() == CleanupType.TTL) {
+            configuration.setOldRecordingsTTL(1);
+            configuration.setOldRecordingsTTLTimeUnit(ChronoUnit.SECONDS);
+        }
+        if (configuration.getRecordingCleanupType() == CleanupType.COUNT) {
+            configuration.setOldRecordingsMax(2);
+        }
         final FlightRecorder flightRecorder = new FlightRecorder(configuration, recordings);
 
 
@@ -473,6 +543,79 @@ class FlightRecorderTest {
         then(recordings).should().remove(idTest);
         assertThat(recordings.size()).isEqualTo(0);
 
+    }
+
+    @Test
+    void givenMultipleRecordingSessionsStopped_whenCleanUpProcessIsExecutedByCount_thenRecordingSessionsAboveThresholdAreDeleted() {
+
+        //given
+        final long id1 = 1L;
+        final long id2 = 2L;
+        final Map<Long, RecordingSession> recordings = spy(new HashMap<>());
+        final Recording mockRecording = mock(Recording.class);
+        final RecordingSession recordingSession = new RecordingSession(mockRecording, "");
+        recordings.put(id1, recordingSession);
+        recordings.put(id2, recordingSession);
+        recordings.put(3L, recordingSession);
+        recordings.put(4L, recordingSession);
+
+        given(mockRecording.getState()).willReturn(RecordingState.STOPPED);
+        given(mockRecording.getStartTime()).willReturn(Instant.now().minusSeconds(10));
+
+        final File mockFile = mock(File.class);
+        final Path mockPath = mock(Path.class);
+        given(mockRecording.getDestination()).willReturn(mockPath);
+        given(mockPath.toFile()).willReturn(mockFile);
+        given(mockFile.delete()).willReturn(true);
+
+        final FlightRecorderDynamicConfiguration configuration = new FlightRecorderDynamicConfiguration();
+        configuration.setRecordingCleanupType(CleanupType.COUNT.toString());
+        configuration.setOldRecordingsMax(2);
+        final FlightRecorder flightRecorder = new FlightRecorder(configuration, recordings);
+
+        //when
+        flightRecorder.cleanupOldRecordings();
+
+        //then
+        then(mockRecording).should(atLeastOnce()).close();
+        then(recordings).should().remove(id1);
+        then(recordings).should().remove(id2);
+        assertThat(recordings).hasSize(2);
+    }
+
+    @Test
+    void givenMultipleRecordingSessionsStoppedAndCountBelowOrEqualToThreshold_whenCleanUpProcessIsExecutedByCount_thenNoRecordingSessionsAreDeleted() {
+
+        //given
+        final long id1 = 1L;
+        final long id2 = 2L;
+        final Map<Long, RecordingSession> recordings = spy(new HashMap<>());
+        final Recording mockRecording = mock(Recording.class);
+        final RecordingSession recordingSession = new RecordingSession(mockRecording, "");
+        recordings.put(id1, recordingSession);
+        recordings.put(id2, recordingSession);
+
+        given(mockRecording.getState()).willReturn(RecordingState.STOPPED);
+        given(mockRecording.getStartTime()).willReturn(Instant.now().minusSeconds(10));
+
+        final File mockFile = mock(File.class);
+        final Path mockPath = mock(Path.class);
+        given(mockRecording.getDestination()).willReturn(mockPath);
+        given(mockPath.toFile()).willReturn(mockFile);
+        given(mockFile.delete()).willReturn(true);
+
+        final FlightRecorderDynamicConfiguration configuration = new FlightRecorderDynamicConfiguration();
+        configuration.setRecordingCleanupType(CleanupType.COUNT.toString());
+        configuration.setOldRecordingsMax(2);
+        final FlightRecorder flightRecorder = new FlightRecorder(configuration, recordings);
+
+        //when
+        flightRecorder.cleanupOldRecordings();
+
+        //then
+        then(recordings).should(never()).remove(id1);
+        then(recordings).should(never()).remove(id2);
+        assertThat(recordings).hasSize(2);
     }
 
 
