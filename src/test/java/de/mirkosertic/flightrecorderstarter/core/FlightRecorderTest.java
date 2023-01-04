@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static de.mirkosertic.flightrecorderstarter.configuration.FlightRecorderDynamicConfiguration.CleanupType;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.BDDMockito.given;
@@ -398,11 +399,10 @@ class FlightRecorderTest {
 
         then(recordings).should(never()).remove(any());
         assertThat(recordings.size()).isEqualTo(0);
-
     }
 
     @Test
-    void givenSingleRecordingSessionClosed_whenCleanUpProcessIsExecuted_thenThatRecordingSessionIsDeleted() {
+    void givenSingleRecordingSessionClosed_whenCleanUpProcessIsExecutedByTTL_thenThatRecordingSessionIsDeleted() {
         //  + one recording candidate closed -> delete candidate
 
         //given
@@ -423,6 +423,7 @@ class FlightRecorderTest {
 
 
         final FlightRecorderDynamicConfiguration configuration = new FlightRecorderDynamicConfiguration();
+        configuration.setRecordingCleanupType(CleanupType.TTL.toString());
         configuration.setOldRecordingsTTL(1);
         configuration.setOldRecordingsTTLTimeUnit(ChronoUnit.SECONDS);
         final FlightRecorder flightRecorder = new FlightRecorder(configuration, recordings);
@@ -438,7 +439,7 @@ class FlightRecorderTest {
     }
 
     @Test
-    void givenSingleRecordingSessionStopped_whenCleanUpProcessIsExecuted_thenThatRecordingSessionIsDeleted() {
+    void givenSingleRecordingSessionStopped_whenCleanUpProcessIsExecutedByTTL_thenThatRecordingSessionIsDeleted() {
         //  + one recording candidate stopped -> close candidate and delete candidate
 
 
@@ -459,6 +460,7 @@ class FlightRecorderTest {
         given(mockFile.delete()).willReturn(true);
 
         final FlightRecorderDynamicConfiguration configuration = new FlightRecorderDynamicConfiguration();
+        configuration.setRecordingCleanupType(CleanupType.TTL.toString());
         configuration.setOldRecordingsTTL(1);
         configuration.setOldRecordingsTTLTimeUnit(ChronoUnit.SECONDS);
         final FlightRecorder flightRecorder = new FlightRecorder(configuration, recordings);
@@ -475,7 +477,7 @@ class FlightRecorderTest {
 
 
     @Test
-    void givenSingleRecordingSessionClosedNoCandidate_whenCleanUpProcessIsExecuted_thenThatRecordingSessionIsNotDeleted() {
+    void givenSingleRecordingSessionClosedNoCandidate_whenCleanUpProcessIsExecutedByTTL_thenThatRecordingSessionIsNotDeleted() {
         //  + one recording no candidate (starttime) -> no delete recording
 
 
@@ -490,6 +492,7 @@ class FlightRecorderTest {
         given(mockRecording.getStartTime()).willReturn(Instant.now().minusSeconds(1));
 
         final FlightRecorderDynamicConfiguration configuration = new FlightRecorderDynamicConfiguration();
+        configuration.setRecordingCleanupType(CleanupType.TTL.toString());
         configuration.setOldRecordingsTTL(10);
         configuration.setOldRecordingsTTLTimeUnit(ChronoUnit.SECONDS);
         final FlightRecorder flightRecorder = new FlightRecorder(configuration, recordings);
@@ -506,7 +509,7 @@ class FlightRecorderTest {
 
 
     @Test
-    void givenSingleRecordingSessionRunningNoCandidate_whenCleanUpProcessIsExecuted_thenThatRecordingSessionIsNotDeleted() {
+    void givenSingleRecordingSessionRunningNoCandidate_whenCleanUpProcessIsExecutedByTTL_thenThatRecordingSessionIsNotDeleted() {
         //  + one recording no candidate (status running) -> no delete recording
 
 
@@ -521,6 +524,7 @@ class FlightRecorderTest {
         given(mockRecording.getStartTime()).willReturn(Instant.now().minusSeconds(10));
 
         final FlightRecorderDynamicConfiguration configuration = new FlightRecorderDynamicConfiguration();
+        configuration.setRecordingCleanupType(CleanupType.TTL.toString());
         configuration.setOldRecordingsTTL(1);
         configuration.setOldRecordingsTTLTimeUnit(ChronoUnit.SECONDS);
         final FlightRecorder flightRecorder = new FlightRecorder(configuration, recordings);
@@ -536,7 +540,7 @@ class FlightRecorderTest {
     }
 
     @Test
-    void givenOneCandidateOfTwoRecordingSession_whenCleanUpProcessIsExecuted_thenJustOnlyOneRecordingSessionIsDeleted() {
+    void givenOneCandidateOfTwoRecordingSession_whenCleanUpProcessIsExecutedByTTL_thenJustOnlyOneRecordingSessionIsDeleted() {
         //  + two recording, one candidate one no -> delete only the candidate
 
         //given
@@ -567,6 +571,7 @@ class FlightRecorderTest {
 
 
         final FlightRecorderDynamicConfiguration configuration = new FlightRecorderDynamicConfiguration();
+        configuration.setRecordingCleanupType(CleanupType.TTL.toString());
         configuration.setOldRecordingsTTL(1);
         configuration.setOldRecordingsTTLTimeUnit(ChronoUnit.SECONDS);
         final FlightRecorder flightRecorder = new FlightRecorder(configuration, recordings);
@@ -584,7 +589,7 @@ class FlightRecorderTest {
     }
 
     @Test
-    void givenTwoRecordingSessionCandidate_whenCleanUpProcessIsExecuted_thenAllRecordingSessionIsDeleted() {
+    void givenTwoRecordingSessionCandidate_whenCleanUpProcessIsExecutedByTTL_thenAllRecordingSessionIsDeleted() {
         //  + two recording candidates -> delete all the candidates
 
         //given
@@ -615,6 +620,7 @@ class FlightRecorderTest {
 
 
         final FlightRecorderDynamicConfiguration configuration = new FlightRecorderDynamicConfiguration();
+        configuration.setRecordingCleanupType(CleanupType.TTL.toString());
         configuration.setOldRecordingsTTL(1);
         configuration.setOldRecordingsTTLTimeUnit(ChronoUnit.SECONDS);
         final FlightRecorder flightRecorder = new FlightRecorder(configuration, recordings);
@@ -627,8 +633,6 @@ class FlightRecorderTest {
         then(recordings).should().remove(idTest1);
         then(recordings).should().remove(idTest2);
         assertThat(recordings.size()).isEqualTo(0);
-
-
     }
 
 
