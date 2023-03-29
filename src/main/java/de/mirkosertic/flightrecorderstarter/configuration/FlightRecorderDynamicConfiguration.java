@@ -24,9 +24,16 @@ import java.util.List;
 @ConfigurationProperties(prefix = "flightrecorder")
 public class FlightRecorderDynamicConfiguration {
 
+    public enum CleanupType {
+        TTL,
+        COUNT
+    }
+
     private boolean enabled = true;
+    private CleanupType recordingCleanupType;
     private long oldRecordingsTTL;
     private ChronoUnit oldRecordingsTTLTimeUnit;
+    private int oldRecordingsMax;
     private String jfrBasePath;
     private String jfrCustomConfig;
 
@@ -38,6 +45,14 @@ public class FlightRecorderDynamicConfiguration {
 
     public void setEnabled(final boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public CleanupType getRecordingCleanupType() {
+        return recordingCleanupType;
+    }
+
+    public void setRecordingCleanupType(String recordingCleanupType) {
+        this.recordingCleanupType = CleanupType.valueOf(recordingCleanupType);
     }
 
     public long getOldRecordingsTTL() {
@@ -54,6 +69,14 @@ public class FlightRecorderDynamicConfiguration {
 
     public void setOldRecordingsTTLTimeUnit(final ChronoUnit oldRecordingsTTLTimeUnit) {
         this.oldRecordingsTTLTimeUnit = oldRecordingsTTLTimeUnit;
+    }
+
+    public int getOldRecordingsMax() {
+        return this.oldRecordingsMax;
+    }
+
+    public void setOldRecordingsMax(int oldRecordingsMax) {
+        this.oldRecordingsMax = oldRecordingsMax;
     }
 
     public List<Trigger> getTrigger() {
