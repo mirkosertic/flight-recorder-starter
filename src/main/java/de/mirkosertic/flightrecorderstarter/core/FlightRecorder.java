@@ -209,7 +209,7 @@ public class FlightRecorder {
     /**
      * If the total number of recordings is above the threshold
      * defined in {@code flightrecorder.old-recordings-max},
-     * returns the oldest recordings that are above the threshold & finished.
+     * returns the oldest recordings that are above the threshold and finished.
      *
      * @return Set of recording IDs to be deleted
      */
