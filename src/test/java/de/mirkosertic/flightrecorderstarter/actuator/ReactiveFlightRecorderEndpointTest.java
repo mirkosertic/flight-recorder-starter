@@ -225,7 +225,7 @@ class ReactiveFlightRecorderEndpointTest {
      * Given request when try to retrieve all recordings then internal server error returned.
      */
     @Test
-    public void givenRequest_whenTryToRetrieveAllRecordings_thenInternalServerErrorReturned() {
+    void givenRequest_whenTryToRetrieveAllRecordings_thenInternalServerErrorReturned() {
         // given
         given(this.mockFlightRecorder.sessions()).willThrow(IllegalArgumentException.class);
 
@@ -246,7 +246,7 @@ class ReactiveFlightRecorderEndpointTest {
      * @throws Exception the exception
      */
     @Test
-    public void givenCorrectParams_whenTryToStopRecording_thenRecordingIdIsReturned() throws Exception {
+    void givenCorrectParams_whenTryToStopRecording_thenRecordingIdIsReturned() throws Exception {
         // given
         given(this.mockFlightRecorder.stopRecording(anyLong()))
                 .willReturn(new File(this.getClass().getResource("/recording.jfr").toURI()));
@@ -268,7 +268,7 @@ class ReactiveFlightRecorderEndpointTest {
      * Given no existing recording id when try to stop recording then not found is returned.
      */
     @Test
-    public void givenNoExistingRecordingId_whenTryToStopRecording_thenNotFoundIsReturned() {
+    void givenNoExistingRecordingId_whenTryToStopRecording_thenNotFoundIsReturned() {
         // given
         given(this.mockFlightRecorder.stopRecording(anyLong())).willReturn(null);
 
@@ -289,7 +289,7 @@ class ReactiveFlightRecorderEndpointTest {
      * @throws Exception the exception
      */
     @Test
-    public void givenCorrectParams_whenTryToDeleteARecording_thenNoContentIsReturned() throws Exception {
+    void givenCorrectParams_whenTryToDeleteARecording_thenNoContentIsReturned() throws Exception {
         // given
         given(this.mockFlightRecorder.stopRecording(anyLong()))
                 .willReturn(new File(this.getClass().getResource("/recording.jfr").toURI()));
@@ -310,7 +310,7 @@ class ReactiveFlightRecorderEndpointTest {
      * Given no existing record id when try to delete a recording then not found is returned.
      */
     @Test
-    public void givenNoExistingRecordId_whenTryToDeleteARecording_thenNotFoundIsReturned() {
+    void givenNoExistingRecordId_whenTryToDeleteARecording_thenNotFoundIsReturned() {
         // given
         given(this.mockFlightRecorder.stopRecording(anyLong())).willReturn(null);
 
@@ -331,7 +331,7 @@ class ReactiveFlightRecorderEndpointTest {
      * Given correct params when try to delete a recording then internal server error is returned.
      */
     @Test
-    public void givenCorrectParams_whenTryToDeleteARecording_thenInternalServerErrorIsReturned() {
+    void givenCorrectParams_whenTryToDeleteARecording_thenInternalServerErrorIsReturned() {
         // given
         given(this.mockFlightRecorder.stopRecording(anyLong())).willThrow(IllegalArgumentException.class);
 
@@ -353,7 +353,7 @@ class ReactiveFlightRecorderEndpointTest {
      * @throws Exception the exception
      */
     @Test
-    public void givenCorrectParams_whenTryToDownloadRecording_thenRecordingIsReturned() throws Exception {
+    void givenCorrectParams_whenTryToDownloadRecording_thenRecordingIsReturned() throws Exception {
         // given
         given(this.mockFlightRecorder.stopRecording(anyLong()))
                 .willReturn(new File(this.getClass().getResource("/recording.jfr").toURI()));
@@ -381,7 +381,7 @@ class ReactiveFlightRecorderEndpointTest {
      * Given no existing record id when try to download recording then not found is returned.
      */
     @Test
-    public void givenNoExistingRecordId_whenTryToDownloadRecording_thenNotFoundIsReturned() {
+    void givenNoExistingRecordId_whenTryToDownloadRecording_thenNotFoundIsReturned() {
         // given
         given(this.mockFlightRecorder.stopRecording(anyLong())).willReturn(null);
 

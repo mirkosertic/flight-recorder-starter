@@ -172,7 +172,7 @@ class FlightRecorderEndpointTest {
     }
 
     @Test
-    public void givenRequest_whenTryToRetrieveAllRecordings_thenInternalServerErrorReturned() throws Exception {
+    void givenRequest_whenTryToRetrieveAllRecordings_thenInternalServerErrorReturned() throws Exception {
         //given
         given(this.mockFlightRecorder.sessions()).willThrow(IllegalArgumentException.class);
 
@@ -186,7 +186,7 @@ class FlightRecorderEndpointTest {
     }
 
     @Test
-    public void givenCorrectParams_whenTryToStopRecording_thenRecordingIdIsReturned() throws Exception {
+    void givenCorrectParams_whenTryToStopRecording_thenRecordingIdIsReturned() throws Exception {
         //given
         given(this.mockFlightRecorder.stopRecording(anyLong())).willReturn(new File(getClass().getResource("/recording.jfr").toURI()));
 
@@ -201,7 +201,7 @@ class FlightRecorderEndpointTest {
     }
 
     @Test
-    public void givenNoExistingRecordingId_whenTryToStopRecording_thenNotFoundIsReturned() throws Exception {
+    void givenNoExistingRecordingId_whenTryToStopRecording_thenNotFoundIsReturned() throws Exception {
         //given
         given(this.mockFlightRecorder.stopRecording(anyLong())).willReturn(null);
 
@@ -215,7 +215,7 @@ class FlightRecorderEndpointTest {
     }
 
     @Test
-    public void givenCorrectParams_whenTryToDeleteARecording_thenNoContentIsReturned() throws Exception {
+    void givenCorrectParams_whenTryToDeleteARecording_thenNoContentIsReturned() throws Exception {
         //given
         given(this.mockFlightRecorder.stopRecording(anyLong())).willReturn(new File(getClass().getResource("/recording.jfr").toURI()));
 
@@ -230,7 +230,7 @@ class FlightRecorderEndpointTest {
     }
 
     @Test
-    public void givenNoExistingRecordId_whenTryToDeleteARecording_thenNotFoundIsReturned() throws Exception {
+    void givenNoExistingRecordId_whenTryToDeleteARecording_thenNotFoundIsReturned() throws Exception {
         //given
         given(this.mockFlightRecorder.stopRecording(anyLong())).willReturn(null);
 
@@ -246,7 +246,7 @@ class FlightRecorderEndpointTest {
     }
 
     @Test
-    public void givenCorrectParams_whenTryToDeleteARecording_thenInternalServerErrorIsReturned() throws Exception {
+    void givenCorrectParams_whenTryToDeleteARecording_thenInternalServerErrorIsReturned() throws Exception {
         //given
         given(this.mockFlightRecorder.stopRecording(anyLong())).willThrow(IllegalArgumentException.class);
 
@@ -261,7 +261,7 @@ class FlightRecorderEndpointTest {
     }
 
     @Test
-    public void givenCorrectParams_whenTryToDownloadRecording_thenRecordingIsReturned() throws Exception {
+    void givenCorrectParams_whenTryToDownloadRecording_thenRecordingIsReturned() throws Exception {
         //given
         given(this.mockFlightRecorder.stopRecording(anyLong())).willReturn(new File(getClass().getResource("/recording.jfr").toURI()));
 
@@ -279,7 +279,7 @@ class FlightRecorderEndpointTest {
     }
 
     @Test
-    public void givenNoExistingRecordId_whenTryToDownloadRecording_thenNotFoundIsReturned() throws Exception {
+    void givenNoExistingRecordId_whenTryToDownloadRecording_thenNotFoundIsReturned() throws Exception {
         //given
         given(this.mockFlightRecorder.stopRecording(anyLong())).willReturn(null);
 

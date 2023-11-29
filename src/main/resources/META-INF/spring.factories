@@ -1,4 +1,1 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  de.mirkosertic.flightrecorderstarter.configuration.FlightRecorderPropertiesAutoConfiguration,\
-de.mirkosertic.flightrecorderstarter.configuration.FlightRecorderAutoConfiguration
 org.springframework.boot.actuate.autoconfigure.web.ManagementContextConfiguration=de.mirkosertic.flightrecorderstarter.configuration.ManagementConfiguration
