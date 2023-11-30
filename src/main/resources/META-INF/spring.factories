@@ -1,1 +1,0 @@
-org.springframework.boot.actuate.autoconfigure.web.ManagementContextConfiguration=de.mirkosertic.flightrecorderstarter.configuration.ManagementConfiguration
