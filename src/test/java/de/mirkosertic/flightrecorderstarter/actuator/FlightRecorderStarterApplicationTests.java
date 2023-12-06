@@ -71,7 +71,10 @@ class FlightRecorderStarterApplicationTests {
 
         Thread.sleep(5_000);
 
-        this.mockMvc.perform(get("/actuator/flightrecorder/" + result.getResponse().getContentAsString()))
+        final String redirectTo = result.getResponse().getHeader("Location");
+        final String recordingId = redirectTo.substring(redirectTo.lastIndexOf("/") + 1);
+
+        this.mockMvc.perform(get("/actuator/flightrecorder/" + recordingId))
                 .andExpect(status().isOk());
     }
 
@@ -85,7 +88,10 @@ class FlightRecorderStarterApplicationTests {
 
         Thread.sleep(1_000);
 
-        this.mockMvc.perform(get("/actuator/flightrecorder/" + result.getResponse().getContentAsString()))
+        final String redirectTo = result.getResponse().getHeader("Location");
+        final String recordingId = redirectTo.substring(redirectTo.lastIndexOf("/") + 1);
+
+        this.mockMvc.perform(get("/actuator/flightrecorder/" + recordingId))
                 .andExpect(status().isOk());
     }
 
