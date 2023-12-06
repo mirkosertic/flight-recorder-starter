@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest(classes = FlightRecorderStarterApplication.class)
-public class SPELTest {
+class SPELTest {
 
     @Autowired
     BeanFactory beanFactory;
@@ -42,7 +42,7 @@ public class SPELTest {
     MeterRegistry meterRegistry;
 
     @Test
-    void testEvaluate() {
+    void evaluate() {
 
         final MicrometerAdapter adapter = new MicrometerAdapter(this.meterRegistry);
         final SpelParserConfiguration config = new SpelParserConfiguration(SpelCompilerMode.IMMEDIATE, this.getClass().getClassLoader());

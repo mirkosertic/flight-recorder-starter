@@ -25,7 +25,7 @@ import java.net.URL;
 class FlameGraphTest {
 
     @Test
-    void testParsing() throws URISyntaxException, IOException {
+    void parsing() throws URISyntaxException, IOException {
         final URL url = getClass().getResource("/recording.jfr");
         final FlameGraph g = FlameGraph.from(new File(url.toURI()));
     }

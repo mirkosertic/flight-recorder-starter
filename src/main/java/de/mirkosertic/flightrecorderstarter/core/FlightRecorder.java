@@ -170,7 +170,7 @@ public class FlightRecorder {
             } else if (this.configuration.getRecordingCleanupType() == FlightRecorderDynamicConfiguration.CleanupType.COUNT) {
                 deletableRecordings = getDeletableRecordingsByCount();
             } else { // can only happen in tests if cleanupType is not set
-                throw new IllegalArgumentException(String.format("Unknown CleanupType '%s'. Deletion failed.", this.configuration.getRecordingCleanupType()));
+                throw new IllegalArgumentException("Unknown CleanupType '%s'. Deletion failed.".formatted(this.configuration.getRecordingCleanupType()));
             }
 
             deletableRecordings.forEach(this::deleteRecording);

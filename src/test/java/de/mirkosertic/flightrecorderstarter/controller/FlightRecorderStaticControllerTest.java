@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.mirkosertic.flightrecorderstarter.DummyTestMainClass;
 import de.mirkosertic.flightrecorderstarter.core.FlightRecorder;
 import de.mirkosertic.flightrecorderstarter.fixtures.FlightRecorderStarterApplication;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -25,6 +24,8 @@ import java.util.Map;
 import static de.mirkosertic.flightrecorderstarter.controller.FlightRecorderStaticController.*;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.http.MediaType.TEXT_HTML;
@@ -270,13 +271,13 @@ class FlightRecorderStaticControllerTest {
 
         given(mockAppContext.getBeansWithAnnotation(SpringBootApplication.class)).willReturn(mockMap);
 
-        Assertions.assertEquals("de.mirkosertic.flightrecorderstarter.fixtures.FlightRecorderStarterApplication" ,
+        assertEquals("de.mirkosertic.flightrecorderstarter.fixtures.FlightRecorderStarterApplication" ,
                 this.flightRecorderStaticController.findBootClass(mockAppContext));
     }
 
     @Test
     void givenApplicationContextWithoutSpringBootApplicationBean_whenTryToFindBootClass_thenNullIsReturned() {
-        Assertions.assertNull(this.flightRecorderStaticController.findBootClass(this.applicationContext));
+        assertNull(this.flightRecorderStaticController.findBootClass(this.applicationContext));
     }
 
     @Test
@@ -292,7 +293,7 @@ class FlightRecorderStaticControllerTest {
         given(mockAppContextParent.getBeansWithAnnotation(SpringBootApplication.class)).willReturn(mockMap);
         given(mockAppContext.getParent()).willReturn(mockAppContextParent);
 
-        Assertions.assertEquals("de.mirkosertic.flightrecorderstarter.fixtures.FlightRecorderStarterApplication" ,
+        assertEquals("de.mirkosertic.flightrecorderstarter.fixtures.FlightRecorderStarterApplication" ,
                 this.flightRecorderStaticController.findBootClass(mockAppContext));
     }
 

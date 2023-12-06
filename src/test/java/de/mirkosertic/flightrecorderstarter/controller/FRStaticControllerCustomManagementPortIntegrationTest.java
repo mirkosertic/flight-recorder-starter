@@ -3,10 +3,10 @@ package de.mirkosertic.flightrecorderstarter.controller;
 import de.mirkosertic.flightrecorderstarter.fixtures.FlightRecorderStarterApplication;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.autoconfigure.web.server.LocalManagementPort;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.test.web.server.LocalManagementPort;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,7 +36,7 @@ class FRStaticControllerCustomManagementPortIntegrationTest {
         final ResponseEntity<Resource> response = this.testRestTemplate
                 .getForEntity(baseUrl + "/customActuator/flightrecorder/ui" + D3_V4_MIN_JS, Resource.class);
 
-        assertThat(response.getStatusCode()).isEqualByComparingTo(HttpStatus.OK);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
 
