@@ -10,7 +10,7 @@
     </parent>
     <groupId>de.mirkosertic</groupId>
     <artifactId>flight-recorder-starter</artifactId>
-    <version>2.3.1-SNAPSHOT</version>
+    <version>3.1.0-SNAPSHOT</version>
     <name>flight-recorder-starter</name>
     <description>Spring Boot 3 starter for Java Flight Recorder Actuator Endpoint</description>
     <packaging>jar</packaging>
