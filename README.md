@@ -27,7 +27,16 @@ Just add the following dependency to your Spring Boot 2 project:
 
 ## Spring Boot 3
 
-Coming soon...
+Just add the following dependency to your Spring Boot 3 project:
+
+```xml
+
+<dependency>
+    <groupId>de.mirkosertic</groupId>
+    <artifactId>flight-recorder-starter</artifactId>
+    <version>3.1.0</version>
+</dependency>
+```
 
 ## Required for all Spring Boot versions
 
