@@ -12,9 +12,22 @@ JMX access might not be available for the application server. Here comes this ha
 This starter adds a new Spring Boot Actuator endpoint for JDK Flight Recorder remote control. This RESTful endpoint
 allows starting and stopping Flight Recording and downloading the `.jfr` files for further analysis.
 
-## Spring Boot 2
+## Spring Boot 3
 
-Just add the following dependency to your Spring Boot 2 project:
+Add the following dependency to your Spring Boot 3 project:
+
+```xml
+
+<dependency>
+    <groupId>de.mirkosertic</groupId>
+    <artifactId>flight-recorder-starter</artifactId>
+    <version>3.4.5</version>
+</dependency>
+```
+
+## Spring Boot 2 (no longer maintained)
+
+Add the following dependency to your Spring Boot 2 project:
 
 ```xml
 
@@ -22,19 +35,6 @@ Just add the following dependency to your Spring Boot 2 project:
     <groupId>de.mirkosertic</groupId>
     <artifactId>flight-recorder-starter</artifactId>
     <version>2.3.1</version>
-</dependency>
-```
-
-## Spring Boot 3
-
-Just add the following dependency to your Spring Boot 3 project:
-
-```xml
-
-<dependency>
-    <groupId>de.mirkosertic</groupId>
-    <artifactId>flight-recorder-starter</artifactId>
-    <version>3.1.0</version>
 </dependency>
 ```
 
