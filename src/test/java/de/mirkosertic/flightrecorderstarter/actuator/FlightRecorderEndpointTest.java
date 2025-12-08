@@ -1,6 +1,5 @@
 package de.mirkosertic.flightrecorderstarter.actuator;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import de.mirkosertic.flightrecorderstarter.actuator.model.FlightRecorderPublicSession;
 import de.mirkosertic.flightrecorderstarter.core.FlightRecorder;
 import org.junit.jupiter.api.Test;
@@ -9,20 +8,20 @@ import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.actuate.autoconfigure.endpoint.EndpointAutoConfiguration;
 import org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointAutoConfiguration;
 import org.springframework.boot.actuate.autoconfigure.web.server.ManagementContextAutoConfiguration;
-import org.springframework.boot.actuate.autoconfigure.web.servlet.ServletManagementContextAutoConfiguration;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
-import org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConfiguration;
-import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
-import org.springframework.boot.autoconfigure.web.servlet.DispatcherServletAutoConfiguration;
-import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.http.converter.autoconfigure.HttpMessageConvertersAutoConfiguration;
+import org.springframework.boot.jackson.autoconfigure.JacksonAutoConfiguration;
+import org.springframework.boot.servlet.autoconfigure.actuate.web.ServletManagementContextAutoConfiguration;
+import org.springframework.boot.webmvc.autoconfigure.DispatcherServletAutoConfiguration;
+import org.springframework.boot.webmvc.autoconfigure.WebMvcAutoConfiguration;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
+import tools.jackson.databind.ObjectMapper;
 
 import java.io.File;
 import java.time.LocalDateTime;
@@ -44,10 +43,7 @@ class FlightRecorderEndpointTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @MockBean
+    @MockitoBean
     private FlightRecorder mockFlightRecorder;
 
     @SpringBootConfiguration
@@ -78,9 +74,9 @@ class FlightRecorderEndpointTest {
         given(this.mockFlightRecorder.startRecordingFor(any())).willReturn(1L);
 
         //When
-        final MvcResult result = this.mockMvc.perform(post("/actuator/flightrecorder")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"timeUnit\": \"SECONDS\"}"))
+        this.mockMvc.perform(post("/actuator/flightrecorder")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"timeUnit\": \"SECONDS\"}"))
                 .andExpect(status().isBadRequest())
                 .andReturn();
 
@@ -110,9 +106,9 @@ class FlightRecorderEndpointTest {
         given(this.mockFlightRecorder.startRecordingFor(any())).willThrow(IllegalArgumentException.class);
 
         //When
-        final MvcResult result = this.mockMvc.perform(post("/actuator/flightrecorder")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"duration\": \"5\",\"timeUnit\":\"SECONDS\"}"))
+        this.mockMvc.perform(post("/actuator/flightrecorder")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"duration\": \"5\",\"timeUnit\":\"Seconds\"}"))
                 .andExpect(status().isInternalServerError())
                 .andReturn();
 
@@ -126,9 +122,9 @@ class FlightRecorderEndpointTest {
         given(this.mockFlightRecorder.startRecordingFor(any())).willReturn(1L);
 
         //When
-        final MvcResult result = this.mockMvc.perform(post("/actuator/flightrecorder")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"duration\": \"5\",\"timeUnit\":\"SECONDS\"}"))
+        this.mockMvc.perform(post("/actuator/flightrecorder")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"duration\": \"5\",\"timeUnit\":\"Seconds\"}"))
                 .andExpect(status().isCreated())
                 .andExpect(redirectedUrlPattern("**/actuator/flightrecorder/1"))
                 .andReturn();
@@ -160,7 +156,7 @@ class FlightRecorderEndpointTest {
         given(this.mockFlightRecorder.sessions()).willReturn(flightRecorderPublicSessions);
 
         //when
-        final MvcResult result = this.mockMvc.perform(get("/actuator/flightrecorder"))
+        this.mockMvc.perform(get("/actuator/flightrecorder"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(content().string(containsString("\"id\":1")))
@@ -177,7 +173,7 @@ class FlightRecorderEndpointTest {
         given(this.mockFlightRecorder.sessions()).willThrow(IllegalArgumentException.class);
 
         //when
-        final MvcResult result = this.mockMvc.perform(get("/actuator/flightrecorder"))
+        this.mockMvc.perform(get("/actuator/flightrecorder"))
                 .andExpect(status().isInternalServerError())
                 .andReturn();
 
@@ -191,7 +187,7 @@ class FlightRecorderEndpointTest {
         given(this.mockFlightRecorder.stopRecording(anyLong())).willReturn(new File(getClass().getResource("/recording.jfr").toURI()));
 
         //when
-        final MvcResult result = this.mockMvc.perform(put("/actuator/flightrecorder/1"))
+        this.mockMvc.perform(put("/actuator/flightrecorder/1"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn();
@@ -206,7 +202,7 @@ class FlightRecorderEndpointTest {
         given(this.mockFlightRecorder.stopRecording(anyLong())).willReturn(null);
 
         //when
-        final MvcResult result = this.mockMvc.perform(put("/actuator/flightrecorder/1"))
+        this.mockMvc.perform(put("/actuator/flightrecorder/1"))
                 .andExpect(status().isNotFound())
                 .andReturn();
 
@@ -220,7 +216,7 @@ class FlightRecorderEndpointTest {
         given(this.mockFlightRecorder.stopRecording(anyLong())).willReturn(new File(getClass().getResource("/recording.jfr").toURI()));
 
         //when
-        final MvcResult result = this.mockMvc.perform(delete("/actuator/flightrecorder/1"))
+        this.mockMvc.perform(delete("/actuator/flightrecorder/1"))
                 .andExpect(status().isNoContent())
                 .andReturn();
 
@@ -235,7 +231,7 @@ class FlightRecorderEndpointTest {
         given(this.mockFlightRecorder.stopRecording(anyLong())).willReturn(null);
 
         //when
-        final MvcResult result = this.mockMvc.perform(delete("/actuator/flightrecorder/1"))
+        this.mockMvc.perform(delete("/actuator/flightrecorder/1"))
                 .andExpect(status().isNotFound())
                 .andReturn();
 
@@ -251,7 +247,7 @@ class FlightRecorderEndpointTest {
         given(this.mockFlightRecorder.stopRecording(anyLong())).willThrow(IllegalArgumentException.class);
 
         //when
-        final MvcResult result = this.mockMvc.perform(delete("/actuator/flightrecorder/1"))
+        this.mockMvc.perform(delete("/actuator/flightrecorder/1"))
                 .andExpect(status().isInternalServerError())
                 .andReturn();
 
@@ -266,7 +262,7 @@ class FlightRecorderEndpointTest {
         given(this.mockFlightRecorder.stopRecording(anyLong())).willReturn(new File(getClass().getResource("/recording.jfr").toURI()));
 
         //when
-        final MvcResult result = this.mockMvc.perform(get("/actuator/flightrecorder/1"))
+        this.mockMvc.perform(get("/actuator/flightrecorder/1"))
                 .andExpect(header().string("Cache-Control", "no-cache, no-store, must-revalidate"))
                 .andExpect(header().string("Pragma", "no-cache"))
                 .andExpect(header().string("Expires", "0"))
@@ -284,7 +280,7 @@ class FlightRecorderEndpointTest {
         given(this.mockFlightRecorder.stopRecording(anyLong())).willReturn(null);
 
         //when
-        final MvcResult result = this.mockMvc.perform(get("/actuator/flightrecorder/1"))
+        this.mockMvc.perform(get("/actuator/flightrecorder/1"))
                 .andExpect(status().isNotFound())
                 .andReturn();
 

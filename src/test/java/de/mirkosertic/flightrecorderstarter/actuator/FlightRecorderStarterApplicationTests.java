@@ -15,16 +15,16 @@
  */
 package de.mirkosertic.flightrecorderstarter.actuator;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import de.mirkosertic.flightrecorderstarter.actuator.model.FlightRecorderPublicSession;
 import de.mirkosertic.flightrecorderstarter.fixtures.FlightRecorderStarterApplication;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import tools.jackson.databind.ObjectMapper;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -43,9 +43,9 @@ class FlightRecorderStarterApplicationTests {
 
     @Test
     void getRecordingAndCheckStatus() throws Exception {
-        final MvcResult result = this.mockMvc.perform(post("/actuator/flightrecorder")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"duration\": \"3\",\"timeUnit\":\"SECONDS\"}"))
+        this.mockMvc.perform(post("/actuator/flightrecorder")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"duration\": \"3\",\"timeUnit\":\"Seconds\"}"))
                 .andExpect(status().isCreated())
                 .andReturn();
 
@@ -65,7 +65,7 @@ class FlightRecorderStarterApplicationTests {
     void getRecordingWhenFinished() throws Exception {
         final MvcResult result = this.mockMvc.perform(post("/actuator/flightrecorder")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"duration\": \"3\",\"timeUnit\":\"SECONDS\"}"))
+                .content("{\"duration\": \"3\",\"timeUnit\":\"Seconds\"}"))
                 .andExpect(status().isCreated())
                 .andReturn();
 
@@ -82,7 +82,7 @@ class FlightRecorderStarterApplicationTests {
     void getRecordingWhenNotFinished() throws Exception {
         final MvcResult result = this.mockMvc.perform(post("/actuator/flightrecorder")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"duration\": \"3\",\"timeUnit\":\"SECONDS\"}"))
+                .content("{\"duration\": \"3\",\"timeUnit\":\"Seconds\"}"))
                 .andExpect(status().isCreated())
                 .andReturn();
 

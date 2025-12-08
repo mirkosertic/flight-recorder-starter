@@ -3,9 +3,10 @@ package de.mirkosertic.flightrecorderstarter.controller;
 import de.mirkosertic.flightrecorderstarter.fixtures.FlightRecorderStarterApplication;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.resttestclient.TestRestTemplate;
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalManagementPort;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
         "management.endpoints.web.base-path=/customActuator" ,
         "management.server.port=0"     //Set port=0 to force random port. See ManagementServerProperties.setPort()
 }, webEnvironment = WebEnvironment.RANDOM_PORT)
+@AutoConfigureTestRestTemplate
 class FRStaticControllerCustomManagementPortIntegrationTest {
 
     @Autowired

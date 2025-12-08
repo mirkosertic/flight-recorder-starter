@@ -24,13 +24,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.io.IOException;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest(classes = {FlightRecorderStarterApplication.class, FlightRecorderAutoConfiguration.class})
@@ -42,7 +41,7 @@ class TriggerCheckerTest {
     @Autowired
     MicrometerAdapter micrometerAdapter;
 
-    @MockBean
+    @MockitoBean
     FlightRecorder flightRecorder;
 
     @Test
@@ -150,10 +149,6 @@ class TriggerCheckerTest {
 
         final FlightRecorderDynamicConfiguration configuration = new FlightRecorderDynamicConfiguration();
         configuration.setEnabled(true);
-
-        final StartRecordingCommand startRecordingCommand = new StartRecordingCommand();
-        startRecordingCommand.setDuration(10L);
-        startRecordingCommand.setTimeUnit(ChronoUnit.SECONDS);
 
         final TriggerChecker checker = new TriggerChecker(this.beanFactory, configuration, this.flightRecorder,
                 this.micrometerAdapter);
