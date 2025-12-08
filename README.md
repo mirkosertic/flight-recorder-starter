@@ -1,6 +1,6 @@
 # Why & When
 
-![Build Workflow](https://github.com/mirkosertic/flight-recorder-starter/workflows/Build%20Workflow/badge.svg) [![Maven Central](https://https://maven-badges.sml.io/maven-central/de.mirkosertic/flight-recorder-starter/badge.svg?style=plastic)](https://maven-badges.herokuapp.com/maven-central/de.mirkosertic/flight-recorder-starter)
+![Build Workflow](https://github.com/mirkosertic/flight-recorder-starter/workflows/Build%20Workflow/badge.svg) [![Maven Central](https://maven-badges.sml.io/maven-central/de.mirkosertic/flight-recorder-starter/badge.svg?style=plastic)](https://maven-badges.sml.io/maven-central/de.mirkosertic/flight-recorder-starter)
 
 This is a Spring Boot Starter exposing the JDK Flight Recorder as a Spring Boot Actuator Endpoint.
 
