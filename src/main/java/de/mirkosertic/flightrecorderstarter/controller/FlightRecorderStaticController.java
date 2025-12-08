@@ -1,6 +1,5 @@
 package de.mirkosertic.flightrecorderstarter.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import de.mirkosertic.flightrecorderstarter.actuator.model.FlameGraph;
 import de.mirkosertic.flightrecorderstarter.core.FlightRecorder;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -14,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import tools.jackson.databind.ObjectMapper;
 
 import java.io.File;
 import java.util.Map;
@@ -63,7 +63,7 @@ public class FlightRecorderStaticController {
     }
 
     @GetMapping(D3_V4_MIN_JS)
-    public ResponseEntity downloadRecording2() {
+    public ResponseEntity<?> downloadRecording2() {
         return ResponseEntity.ok()
                 .headers(createHttpHeaders())
                 .contentType(TEXT_JAVASCRIPT)
@@ -71,7 +71,7 @@ public class FlightRecorderStaticController {
     }
 
     @GetMapping(D3_FLAMEGRAPH_MIN_JS)
-    public ResponseEntity downloadRecording3() {
+    public ResponseEntity<?> downloadRecording3() {
         return ResponseEntity.ok()
                 .headers(createHttpHeaders())
                 .contentType(TEXT_JAVASCRIPT)
@@ -80,7 +80,7 @@ public class FlightRecorderStaticController {
     }
 
     @GetMapping(D3_FLAMEGRAPH_COLOR_MAPPER_MIN_JS)
-    public ResponseEntity downloadRecording4() {
+    public ResponseEntity<?> downloadRecording4() {
         return ResponseEntity.ok()
                 .headers(createHttpHeaders())
                 .contentType(TEXT_JAVASCRIPT)
@@ -88,7 +88,7 @@ public class FlightRecorderStaticController {
     }
 
     @GetMapping(D3_FLAMEGRAPH_TOOLTIP_MIN_JS)
-    public ResponseEntity downloadRecording5() {
+    public ResponseEntity<?> downloadRecording5() {
         return ResponseEntity.ok()
                 .headers(createHttpHeaders())
                 .contentType(TEXT_JAVASCRIPT)
@@ -96,7 +96,7 @@ public class FlightRecorderStaticController {
     }
 
     @GetMapping(D3_FLAMEGRAPH_CSS)
-    public ResponseEntity downloadRecording6() {
+    public ResponseEntity<?> downloadRecording6() {
         return ResponseEntity.ok()
                 .headers(createHttpHeaders())
                 .contentType(TEXT_CSS)
@@ -105,7 +105,7 @@ public class FlightRecorderStaticController {
 
 
     @GetMapping(RECORDING_ID + FLAMEGRAPH_HTML)
-    public ResponseEntity downloadRecordingFlameGraph(@PathVariable final long recordingId) {
+    public ResponseEntity<?> downloadRecordingFlameGraph(@PathVariable final long recordingId) {
 
         return ResponseEntity.ok()
                 .headers(createHttpHeaders())
@@ -114,7 +114,7 @@ public class FlightRecorderStaticController {
     }
 
     @GetMapping(RECORDING_ID + RAM_FLAMEGRAPH_HTML)
-    public ResponseEntity downloadRecordingRawFlameGraph(@PathVariable final long recordingId) {
+    public ResponseEntity<?> downloadRecordingRawFlameGraph(@PathVariable final long recordingId) {
 
         return ResponseEntity.ok()
                 .headers(createHttpHeaders())
@@ -123,7 +123,7 @@ public class FlightRecorderStaticController {
     }
 
     @GetMapping(RECORDING_ID + DATA_JSON)
-    public ResponseEntity downloadRecordingJson(@PathVariable final long recordingId) {
+    public ResponseEntity<?> downloadRecordingJson(@PathVariable final long recordingId) {
         LOGGER.log(Level.INFO, "Closing recording with ID {0} and downloading file", recordingId);
         try {
             final File file = this.flightRecorder.stopRecording(recordingId);
@@ -155,7 +155,7 @@ public class FlightRecorderStaticController {
     }
 
     @GetMapping(RECORDING_ID + RAWDATA_JSON)
-    public ResponseEntity downloadRecordingRawJson(@PathVariable final long recordingId) {
+    public ResponseEntity<?> downloadRecordingRawJson(@PathVariable final long recordingId) {
         LOGGER.log(Level.INFO, "Closing recording with ID {0} and downloading file", recordingId);
         try {
 

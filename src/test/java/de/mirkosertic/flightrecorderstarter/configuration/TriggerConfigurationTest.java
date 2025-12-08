@@ -4,8 +4,8 @@ package de.mirkosertic.flightrecorderstarter.configuration;
 import de.mirkosertic.flightrecorderstarter.trigger.MicrometerAdapter;
 import de.mirkosertic.flightrecorderstarter.trigger.TriggerChecker;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.actuate.autoconfigure.metrics.CompositeMeterRegistryAutoConfiguration;
-import org.springframework.boot.actuate.autoconfigure.metrics.MetricsAutoConfiguration;
+import org.springframework.boot.micrometer.metrics.autoconfigure.CompositeMeterRegistryAutoConfiguration;
+import org.springframework.boot.micrometer.metrics.autoconfigure.MetricsAutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 

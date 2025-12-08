@@ -12,6 +12,19 @@ JMX access might not be available for the application server. Here comes this ha
 This starter adds a new Spring Boot Actuator endpoint for JDK Flight Recorder remote control. This RESTful endpoint
 allows starting and stopping Flight Recording and downloading the `.jfr` files for further analysis.
 
+## Spring Boot 4
+
+Add the following dependency to your Spring Boot 3 project:
+
+```xml
+
+<dependency>
+    <groupId>de.mirkosertic</groupId>
+    <artifactId>flight-recorder-starter</artifactId>
+    <version>4.0.0</version>
+</dependency>
+```
+
 ## Spring Boot 3
 
 Add the following dependency to your Spring Boot 3 project:
@@ -59,6 +72,8 @@ include them according the stack you wish.
     <artifactId>spring-boot-starter-web</artifactId>
 </dependency>
 ```
+
+* Please use spring-boot-starter-webmvc for Spring Boot >= 4
 
 **WebFlux**
 
@@ -116,11 +131,11 @@ Example of JSON param:
 {
   "description": "MyFirstRecording",
   "duration": "60",
-  "timeUnit": "SECONDS",
+  "timeUnit": "Seconds",
   "maxAgeDuration": "10",
-  "maxAgeUnit": "SECONDS",
+  "maxAgeUnit": "Seconds",
   "delayDuration": "5",
-  "delayUnit": "SECONDS",
+  "delayUnit": "Seconds",
   "maxSize": "100000",
   "customSettings": {
     "myCustomProperty1": "myCustomValue1",
@@ -274,7 +289,7 @@ flightrecorder:
     - expression: meter('jvm.memory.used').tag('area','nonheap').tag('id','Metaspace').measurement('value') > 100
       startRecordingCommand:
         duration: 60
-        timeUnit: SECONDS
+        timeUnit: Seconds
 ``` 
 
 The list of all created recordings can be seen as a JSON file using the following api:
