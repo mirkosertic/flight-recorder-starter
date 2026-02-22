@@ -14,7 +14,7 @@ allows starting and stopping Flight Recording and downloading the `.jfr` files f
 
 ## Spring Boot 4
 
-Add the following dependency to your Spring Boot 3 project:
+Add the following dependency to your Spring Boot 4 project:
 
 ```xml
 
