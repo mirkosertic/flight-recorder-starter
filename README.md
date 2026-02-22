@@ -21,7 +21,7 @@ Add the following dependency to your Spring Boot 3 project:
 <dependency>
     <groupId>de.mirkosertic</groupId>
     <artifactId>flight-recorder-starter</artifactId>
-    <version>4.0.0</version>
+    <version>4.0.3</version>
 </dependency>
 ```
 
