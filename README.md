@@ -21,7 +21,7 @@ Add the following dependency to your Spring Boot 4 project:
 <dependency>
     <groupId>de.mirkosertic</groupId>
     <artifactId>flight-recorder-starter</artifactId>
-    <version>4.0.4</version>
+    <version>4.0.6</version>
 </dependency>
 ```
 
